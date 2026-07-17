@@ -13,7 +13,7 @@ import { HelpCircle } from "lucide-react";
 const FAQS = [
   {
     q: "What is the CSS exam and who conducts it?",
-    a: "The CSS (Central Superior Services) exam is Pakistan&apos;s premier competitive examination, conducted annually by the Federal Public Service Commission (FPSC). It recruits officers for 12 occupational groups of the federal government including PAS, PSP, FSP, Customs, and PAAS. Successful candidates undergo Common Training Programme (CTP) at CSA Lahore followed by Specialised Training Programme (STP) in their respective groups.",
+    a: "The CSS (Central Superior Services) exam is Pakistan&apos;s premier competitive examination, conducted annually by the Federal Public Service Commission (FPSC). It recruits officers for 12 occupational groups of the federal government including PAS, FSP, PSP, Customs, and PAAS. Successful candidates undergo Common Training Programme (CTP) at CSA Lahore followed by Specialised Training Programme (STP) in their respective groups.",
   },
   {
     q: "How many attempts am I allowed for CSS?",
@@ -41,7 +41,7 @@ const FAQS = [
   },
   {
     q: "What is the difference between CSS and PMS?",
-    a: "CSS is conducted by the federal FPSC for federal occupational groups (PAS, PSP, FSP, etc.). PMS (Provincial Management Service) is conducted by each province&apos;s Public Service Commission for provincial administrative posts. The syllabus and exam structure are similar but the career path, salary, and jurisdiction differ. Many aspirants appear in both.",
+    a: "CSS is conducted by the federal FPSC for federal occupational groups (PAS, FSP, PSP, etc.). PMS (Provincial Management Service) is conducted by each province&apos;s Public Service Commission for provincial administrative posts. The syllabus and exam structure are similar but the career path, salary, and jurisdiction differ. Many aspirants appear in both.",
   },
   {
     q: "How many months of preparation are needed?",
@@ -49,7 +49,7 @@ const FAQS = [
   },
   {
     q: "Can female candidates appear in CSS?",
-    a: "Absolutely. Female candidates are encouraged and have a 10% reserved quota in federal jobs. Several toppers in recent years have been women, including Ayesha Sana (1st position CSS 2023). The FPSC ensures separate examination centres and female-friendly viva voce panels. Marriage, motherhood, or family background are not barriers.",
+    a: "Absolutely. Female candidates are encouraged and have a 10% reserved quota in federal jobs. Many high-merit female candidates in recent years have secured top occupational groups like PAS, FSP, and PSP. The FPSC ensures separate examination centres and female-friendly viva voce panels. Marriage, motherhood, or family background are not barriers.",
   },
 ];
 

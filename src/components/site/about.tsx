@@ -28,19 +28,18 @@ const ELIGIBILITY = [
 ];
 
 const CSS_GROUPS = [
-  "Commerce & Trade Group (CTG)",
-  "Pakistan Audit & Accounts Service (PAAS)",
-  "Customs Group",
-  "District Management Group (DMG/PAS)",
+  "Pakistan Administrative Service (PAS)",
   "Foreign Service of Pakistan (FSP)",
+  "Police Service of Pakistan (PSP)",
+  "Customs Group",
+  "Pakistan Audit & Accounts Service (PAAS)",
+  "Office Management Group (OMG)",
+  "Commerce & Trade Group (CTG)",
   "Inland Revenue Service (IRS)",
   "Information Group (IG)",
-  "Military Lands & Cantonments (MLC)",
-  "Office Management Group (OMG)",
-  "Pakistan Administrative Service (PAS)",
-  "Police Service of Pakistan (PSP)",
-  "Postal Group (PG)",
   "Railways (Commercial & Transport) Group",
+  "Postal Group (PG)",
+  "Military Lands & Cantonments (MLC)",
 ];
 
 export default function About() {
