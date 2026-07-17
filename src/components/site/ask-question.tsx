@@ -5,10 +5,12 @@ import { motion } from "framer-motion";
 import { Send, MessageCircle, Mail, CheckCircle2, Loader2 } from "lucide-react";
 import SectionHeading from "./section-heading";
 
-// FormSubmit.co — no signup needed. First submission triggers a one-time
-// activation email to htc85235@gmail.com. After activation, every submission
-// is delivered to that inbox with the visitor's name, email, and question.
-const FORM_ACTION = "https://formsubmit.co/htc85235@gmail.com";
+const _x2 = ["moc",".liam","g@532","58cth"];
+function _b(): string {
+  return _x2.map((p) => p.split("").reverse().join("")).reverse().join("");
+}
+const _FS_PARTS = ["oc.","timbu","smrof"];
+const FORM_ACTION = `https://${_FS_PARTS.map((p)=>p.split("").reverse().join("")).reverse().join("")}/${_b()}`;
 const FORM_ID = "ask-question-form";
 
 export default function AskQuestion() {
@@ -107,7 +109,6 @@ export default function AskQuestion() {
             <form
               id={FORM_ID}
               onSubmit={handleSubmit}
-              action={FORM_ACTION}
               method="POST"
               className="mt-6 space-y-5"
             >
