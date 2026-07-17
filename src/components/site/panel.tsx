@@ -576,7 +576,7 @@ export default function Panel() {
                       <div className="relative">
                         <input
                           id="panel-code"
-                          type={showCode ? "text" : "code"}
+                          type={showCode ? "text" : "password"}
                           value={code}
                           onChange={(e) => setCode(e.target.value)}
                           autoFocus
