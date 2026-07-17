@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import SectionHeading from "./section-heading";
-import { BookText, Languages, BookOpen, Newspaper, Moon, Scale } from "lucide-react";
+import { BookText, BookOpen, Moon, Scale, FlaskConical } from "lucide-react";
 
 const SUBJECTS = [
   {
@@ -27,17 +27,7 @@ const SUBJECTS = [
   },
   {
     code: "03",
-    icon: Languages,
-    title: "Urdu",
-    marks: 100,
-    duration: "3 hours",
-    syllabus:
-      "Essay (1500–2000 words), precis, comprehension, translation from English to Urdu, sentence correction, and grammar. Covers classical and modern Urdu literature, Iqbal & Ghalib studies.",
-    tips: "Read Dawn & Jang Urdu columns daily. Memorize 30+ Iqbal couplets and 20 Ghalib shers for essay enrichment.",
-  },
-  {
-    code: "04",
-    icon: Newspaper,
+    icon: FlaskConical,
     title: "General Science & Ability",
     marks: 100,
     duration: "3 hours",
@@ -46,7 +36,7 @@ const SUBJECTS = [
     tips: "Don't ignore Part II — it's scoring. Master ratios, percentages, probability, syllogisms. Practice daily mental math.",
   },
   {
-    code: "05",
+    code: "04",
     icon: BookOpen,
     title: "Current Affairs",
     marks: 100,
@@ -56,7 +46,7 @@ const SUBJECTS = [
     tips: "Read Dawn, The Diplomat, Economist, Foreign Affairs. Maintain monthly current affairs notebook from June onward.",
   },
   {
-    code: "06",
+    code: "05",
     icon: Scale,
     title: "Pakistan Affairs",
     marks: 100,
@@ -66,7 +56,7 @@ const SUBJECTS = [
     tips: "Build timeline charts. Connect historical events with current affairs. Use Ikram Rabbani + Trek to Pakistan.",
   },
   {
-    code: "07",
+    code: "06",
     icon: Moon,
     title: "Islamic Studies / Ethics",
     marks: 100,

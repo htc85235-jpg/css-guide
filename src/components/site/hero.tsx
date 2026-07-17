@@ -150,13 +150,17 @@ export default function Hero() {
               <div className="w-8 h-8 rounded-lg bg-emerald/15 flex items-center justify-center">
                 <BookOpen className="w-4 h-4 text-emerald" />
               </div>
-              <span className="text-xs font-bold text-emerald-dark">Compulsory</span>
+              <span className="text-xs font-bold text-emerald-dark">
+                Compulsory <span className="text-gold-dark">· 6</span>
+              </span>
             </div>
             <ul className="text-[11px] text-ink/70 space-y-1">
               <li>• English Essay</li>
-              <li>• Pakistan Affairs</li>
+              <li>• English (Precis &amp; Comp.)</li>
+              <li>• General Science &amp; Ability</li>
               <li>• Current Affairs</li>
-              <li>• Islamiat / Ethics</li>
+              <li>• Pakistan Affairs</li>
+              <li>• Islamic Studies / Ethics</li>
             </ul>
           </motion.div>
 
