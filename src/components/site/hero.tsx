@@ -39,7 +39,7 @@ export default function Hero() {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white shadow-md border border-emerald/15 text-sm font-medium text-emerald-dark"
           >
             <Sparkles className="w-4 h-4 text-gold" />
-            Pakistan&apos;s #1 Free CSS Exam Resource Hub
+            Free CSS Exam Resource Hub
           </motion.div>
 
           <motion.h1
