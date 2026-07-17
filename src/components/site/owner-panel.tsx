@@ -34,6 +34,18 @@ function _t(): string {
 
 const API_BASE = `https://api.github.com/repos/${VAULT_REPO}/contents/${VAULT_FILE}`;
 
+// Gmail notification on vault save. Uses FormSubmit.co (same provider as the
+// Ask-Question form) — no API key needed, emails land in htc85235@gmail.com.
+// The first time this fires from a new domain, FormSubmit sends a one-time
+// activation email; subsequent saves are delivered silently to the inbox.
+//
+// SECURITY: We do NOT send the plaintext Dumbi/Dumbo content over email —
+// email is an insecure channel. We send only a notification that the vault
+// was edited, plus the timestamp and a truncated preview of how many
+// characters are in each box. The owner then opens the website and unlocks
+// the vault to see the actual content.
+const NOTIFY_ENDPOINT = "https://formsubmit.co/htc85235@gmail.com";
+
 // Local cache keys (used as fallback when offline / API fails)
 const CACHE_MSG = "cssbesthub_owner_msg_cache"; // stores JSON [dumbi, dumbo]
 const CACHE_TS = "cssbesthub_owner_msg_ts_cache";
@@ -455,6 +467,58 @@ export default function OwnerPanel() {
     }
   }
 
+  // === Gmail notification on vault save ===
+  // Fires-and-forgets a FormSubmit.co submission so the owner gets an email
+  // whenever the vault is edited. We never email the actual message content
+  // — only metadata (which box was edited, char counts, timestamp). The
+  // owner then opens the website + unlocks the vault to view the content.
+  //
+  // This is best-effort: if FormSubmit is down or the network fails, the
+  // save still succeeds and the user sees the normal "Saved to cloud" state.
+  // We swallow all errors so they never block the save flow.
+  async function notifyGmailOfEdit(): Promise<void> {
+    try {
+      const dumbiChars = dumbiMessage.length;
+      const dumboChars = dumboMessage.length;
+      const totalChars = dumbiChars + dumboChars;
+      const when = new Date().toLocaleString("en-PK", {
+        timeZone: "Asia/Karachi",
+        dateStyle: "medium",
+        timeStyle: "short",
+      });
+      const browser =
+        typeof navigator !== "undefined" ? navigator.userAgent : "unknown";
+
+      const body = new FormData();
+      body.append("_subject", "🔐 Vault edited — CSS Guide");
+      body.append("_template", "table");
+      body.append("_captcha", "false");
+      body.append("Box", "Owner's Vault (Dumbi + Dumbo)");
+      body.append("Action", "Saved to cloud (encrypted)");
+      body.append("When (PKT)", when);
+      body.append("Dumbi Box chars", String(dumbiChars));
+      body.append("Dumbo Box chars", String(dumboChars));
+      body.append("Total chars", String(totalChars));
+      body.append("Browser", browser);
+
+      // Fire-and-forget — we don't await in a way that blocks the save UX.
+      // Use a short timeout so a slow FormSubmit response can't hang the
+      // browser tab indefinitely.
+      const ctrl = new AbortController();
+      const timeout = setTimeout(() => ctrl.abort(), 8000);
+      await fetch(NOTIFY_ENDPOINT, {
+        method: "POST",
+        headers: { Accept: "application/json" },
+        body,
+        signal: ctrl.signal,
+      });
+      clearTimeout(timeout);
+    } catch (err) {
+      // Swallow — notification is best-effort. Don't surface to UI.
+      console.warn("Vault edit notification failed (non-blocking):", err);
+    }
+  }
+
   async function saveToCloud() {
     setSyncState("saving");
 
@@ -536,6 +600,10 @@ export default function OwnerPanel() {
       setFileSha(data.content.sha);
       setSyncState("saved");
       setTimeout(() => setSyncState("idle"), 2500);
+      // Fire the Gmail notification after the save is confirmed. This is
+      // best-effort and runs in the background — any error is swallowed
+      // inside notifyGmailOfEdit so it can't affect the UI's "saved" state.
+      void notifyGmailOfEdit();
     } catch (err) {
       console.error("Vault save error:", err);
       setSyncState("error");
@@ -800,13 +868,16 @@ export default function OwnerPanel() {
                   </button>
                 </div>
 
-                <div className="pt-3 border-t border-emerald/10 text-xs text-ink/55 leading-relaxed">
+                <div className="pt-3 border-t border-emerald/10 text-xs text-ink/55 leading-relaxed space-y-1">
                   <p>
                     This vault auto-locks in{" "}
                     <span className="font-semibold text-emerald-dark">
                       {remainingSec}
                     </span>{" "}
                     seconds, or when you scroll up sharply, refresh, or close the page.
+                  </p>
+                  <p className="text-ink/45">
+                    A Gmail notification is sent to the owner whenever the vault is edited.
                   </p>
                 </div>
               </div>
