@@ -1,10 +1,9 @@
 # ============================================================
-# SECURITY-FIRST .gitignore
-# Prevents accidental commit of secrets, env files, build
-# artifacts, and local development state.
+# Prevents accidental commit of env files, build artifacts,
+# and local development state.
 # ============================================================
 
-# ---------- Secrets & credentials (NEVER commit) ----------
+# ---------- Env files (NEVER commit) ----------
 .env
 .env.*
 !.env.example
@@ -85,7 +84,8 @@ playwright/.cache/
 db/*.db
 prisma/*.db
 
-# ---------- Tool-results / agent-ctx / scratch (dev-only) ----------
+# ---------- Local scripts ----------
+scripts/
 tool-results/
 agent-ctx/
 .scratch/
@@ -100,17 +100,6 @@ ehthumbs.db
 $RECYCLE.BIN/
 Network Trash Folder/
 Temporary Items/
-
-# ---------- Deployment scripts that may contain tokens ----------
-# These contain the obfuscated GitHub token chunks and MUST stay local-only.
-# They are never pushed to the public repo (even after going private).
-scripts/deploy-gh-pages.js
-scripts/harden-public-repo.js
-scripts/migrate-vault-encryption.py
-scripts/deploy-cssbesthub.sh
-scripts/icon-preview.py
-scripts/*-local.js
-scripts/local-*.sh
 
 # ---------- Misc project files ----------
 *.local
