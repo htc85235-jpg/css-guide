@@ -47,7 +47,7 @@ export default function Syllabus() {
             The CSS exam has detailed, paper-by-paper syllabi for every compulsory
             and optional subject — published officially by FPSC. We&apos;ve
             partnered with{" "}
-            <span className="font-semibold text-emerald">CSS Point</span> to give
+            <span className="font-semibold text-emerald">The CSS Point</span> to give
             you the most updated, downloadable syllabus for every single paper.
           </motion.p>
         </div>
@@ -77,7 +77,7 @@ export default function Syllabus() {
                 <span className="text-gradient-gold">in one click.</span>
               </h3>
               <p className="mt-4 text-cream/80 text-sm sm:text-base leading-relaxed max-w-xl">
-                CSS Point hosts the complete, downloadable PDF syllabus for all
+                The CSS Point hosts the complete, downloadable PDF syllabus for all
                 6 compulsory papers and 50+ optional subjects — with topic-wise
                 breakdowns, recommended books, and past paper analysis for each.
               </p>
@@ -99,7 +99,7 @@ export default function Syllabus() {
 
               {/* CTA button */}
               <a
-                href="https://www.csspoint.com.pk/css-syllabus"
+                href="https://thecsspoint.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-8 group inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-gold text-emerald-dark font-bold shadow-xl hover:bg-gold-light hover:-translate-y-0.5 transition-all shine relative overflow-hidden"
@@ -175,7 +175,7 @@ export default function Syllabus() {
           transition={{ duration: 0.6 }}
           className="mt-6 text-center text-xs text-ink/55 max-w-2xl mx-auto"
         >
-          You will be redirected to CSS Point — Pakistan&apos;s trusted free
+          You will be redirected to The CSS Point — Pakistan&apos;s trusted free
           resource for CSS syllabus, past papers, and study material. Always
           cross-check with the official FPSC website for the latest updates.
         </motion.p>
