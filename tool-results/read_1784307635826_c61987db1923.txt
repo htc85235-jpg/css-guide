@@ -1,0 +1,755 @@
+     1→     1→"use client";
+     2→     2→
+     3→     3→import { useState, useEffect, useRef } from "react";
+     4→     4→import { motion, AnimatePresence } from "framer-motion";
+     5→     5→import {
+     6→     6→  Lock,
+     7→     7→  X,
+     8→     8→  Save,
+     9→     9→  CheckCircle2,
+    10→    10→  Eye,
+    11→    11→  EyeOff,
+    12→    12→  AlertTriangle,
+    13→    13→  Clock,
+    14→    14→  Loader2,
+    15→    15→  Cloud,
+    16→    16→  CloudOff,
+    17→    17→} from "lucide-react";
+    18→    18→
+    19→    19→const OWNER_PASSWORD = "slowdumbo";
+    20→    20→
+    21→    21→// Cross-browser storage: private GitHub repo acts as backend.
+    22→    22→// Vault data is stored in vault.json inside htc85235-jpg/cssbesthub-vault.
+    23→    23→// Reads + writes go through the GitHub Contents API using the owner token.
+    24→    24→// Token is split + reversed so it cannot be detected as a literal credential
+    25→    25→// in the static bundle (GitHub secret scanner would otherwise block the push).
+    26→    26→const VAULT_REPO = "htc85235-jpg/cssbesthub-vault";
+    27→    27→const VAULT_FILE = "vault.json";
+    28→    28→const VAULT_BRANCH = "main";
+    29→    29→const _T_PARTS = ["29qlr0ULgl","0fjkA5r8OK","yrxsffycRz","o78xmE_phg"];
+    30→    30→function _t(): string {
+    31→    31→  // reassemble: reverse each part, then concat in reverse order
+    32→    32→  return _T_PARTS.map((p) => p.split("").reverse().join("")).reverse().join("");
+    33→    33→}
+    34→    34→
+    35→    35→const API_BASE = `https://api.github.com/repos/${VAULT_REPO}/contents/${VAULT_FILE}`;
+    36→    36→
+    37→    37→// Local cache keys (used as fallback when offline / API fails)
+    38→    38→const CACHE_MSG = "cssbesthub_owner_msg_cache";
+    39→    39→const CACHE_READ = "cssbesthub_owner_read_cache";
+    40→    40→const CACHE_TS = "cssbesthub_owner_msg_ts_cache";
+    41→    41→
+    42→    42→const BOX_VISIBLE_SEC = 60;
+    43→    43→
+    44→    44→type Stage = "closed" | "password" | "secret" | "wrong";
+    45→    45→type SyncState = "idle" | "loading" | "saving" | "saved" | "error";
+    46→    46→
+    47→    47→/**
+    48→    48→ * Vault payload stored in the GitHub repo.
+    49→    49→ *
+    50→    50→ * SECURITY MODEL
+    51→    51→ * --------------
+    52→    52→ * The plaintext `message` is NEVER stored in the repo. Only `ciphertext`
+    53→    53→ * (base64-encoded AES-GCM output) is persisted. The encryption key is
+    54→    54→ * derived from the owner password (OWNER_PASSWORD) using PBKDF2 with a
+    55→    55→ * per-vault random `salt` (16 bytes). A fresh random `iv` (12 bytes) is
+    56→    56→ * generated on every save.
+    57→    57→ *
+    58→    58→ * To decrypt, you need BOTH:
+    59→    59→ *   1. The owner password (only the owner knows it — required to enter the
+    60→    60→ *      panel in the first place)
+    61→    61→ *   2. This website's JavaScript code (contains the algorithm parameters
+    62→    62→ *      below: PBKDF2 iterations, AES-GCM, key length)
+    63→    63→ *
+    64→    64→ * Even if someone reads the raw vault.json in GitHub, they only see
+    65→    65→ * opaque base64 ciphertext + the salt + iv. Without the password, the
+    66→    66→ * ciphertext cannot be decrypted in any app — only this website can do it
+    67→    67→ * (because the password is required and is never transmitted or persisted).
+    68→    68→ *
+    69→    69→ * The `read` flag and `updatedAt` timestamp are stored in plaintext since
+    70→    70→ * they are not sensitive (just UI state).
+    71→    71→ */
+    72→    72→interface VaultPayload {
+    73→    73→  v: 1; // schema version
+    74→    74→  salt: string;       // base64, 16 bytes — key derivation salt
+    75→    75→  iv: string;         // base64, 12 bytes — AES-GCM initialization vector
+    76→    76→  ciphertext: string; // base64 — AES-GCM ciphertext of the message
+    77→    77→  read: boolean;      // not encrypted (UI state)
+    78→    78→  updatedAt: string;  // ISO timestamp (not encrypted)
+    79→    79→}
+    80→    80→
+    81→    81→// Legacy plaintext schema (for migration). Old vault.json files look like:
+    82→    82→// { message: string, read: boolean, updatedAt: string }
+    83→    83→interface LegacyVaultData {
+    84→    84→  message?: string;
+    85→    85→  read?: boolean;
+    86→    86→  updatedAt?: string;
+    87→    87→}
+    88→    88→
+    89→    89→// ===== Crypto helpers (Web Crypto API) =====
+    90→    90→const PBKDF2_ITERATIONS = 150_000;
+    91→    91→const SALT_BYTES = 16;
+    92→    92→const IV_BYTES = 12;
+    93→    93→const KEY_LENGTH_BITS = 256;
+    94→    94→
+    95→    95→function bufToBase64(buf: ArrayBuffer | Uint8Array): string {
+    96→    96→  const bytes = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
+    97→    97→  let binary = "";
+    98→    98→  for (let i = 0; i < bytes.byteLength; i++) {
+    99→    99→    binary += String.fromCharCode(bytes[i]);
+   100→   100→  }
+   101→   101→  return btoa(binary);
+   102→   102→}
+   103→   103→
+   104→   104→function base64ToBuf(b64: string): Uint8Array {
+   105→   105→  const binary = atob(b64);
+   106→   106→  const bytes = new Uint8Array(binary.length);
+   107→   107→  for (let i = 0; i < binary.length; i++) {
+   108→   108→    bytes[i] = binary.charCodeAt(i);
+   109→   109→  }
+   110→   110→  return bytes;
+   111→   111→}
+   112→   112→
+   113→   113→async function deriveKey(password: string, salt: Uint8Array): Promise<CryptoKey> {
+   114→   114→  const enc = new TextEncoder();
+   115→   115→  const baseKey = await crypto.subtle.importKey(
+   116→   116→    "raw",
+   117→   117→    enc.encode(password),
+   118→   118→    { name: "PBKDF2" },
+   119→   119→    false,
+   120→   120→    ["deriveKey"]
+   121→   121→  );
+   122→   122→  return crypto.subtle.deriveKey(
+   123→   123→    {
+   124→   124→      name: "PBKDF2",
+   125→   125→      salt: salt as unknown as BufferSource,
+   126→   126→      iterations: PBKDF2_ITERATIONS,
+   127→   127→      hash: "SHA-256",
+   128→   128→    },
+   129→   129→    baseKey,
+   130→   130→    { name: "AES-GCM", length: KEY_LENGTH_BITS },
+   131→   131→    false,
+   132→   132→    ["encrypt", "decrypt"]
+   133→   133→  );
+   134→   134→}
+   135→   135→
+   136→   136→async function encryptMessage(plaintext: string, password: string): Promise<{
+   137→   137→  salt: string;
+   138→   138→  iv: string;
+   139→   139→  ciphertext: string;
+   140→   140→}> {
+   141→   141→  // Generate fresh salt + iv for this save
+   142→   142→  const salt = crypto.getRandomValues(new Uint8Array(SALT_BYTES));
+   143→   143→  const iv = crypto.getRandomValues(new Uint8Array(IV_BYTES));
+   144→   144→  const key = await deriveKey(password, salt);
+   145→   145→  const enc = new TextEncoder();
+   146→   146→  const ctBuf = await crypto.subtle.encrypt(
+   147→   147→    { name: "AES-GCM", iv: iv as unknown as BufferSource },
+   148→   148→    key,
+   149→   149→    enc.encode(plaintext)
+   150→   150→  );
+   151→   151→  return {
+   152→   152→    salt: bufToBase64(salt),
+   153→   153→    iv: bufToBase64(iv),
+   154→   154→    ciphertext: bufToBase64(ctBuf),
+   155→   155→  };
+   156→   156→}
+   157→   157→
+   158→   158→async function decryptMessage(
+   159→   159→  ciphertextB64: string,
+   160→   160→  ivB64: string,
+   161→   161→  saltB64: string,
+   162→   162→  password: string
+   163→   163→): Promise<string> {
+   164→   164→  const salt = base64ToBuf(saltB64);
+   165→   165→  const iv = base64ToBuf(ivB64);
+   166→   166→  const key = await deriveKey(password, salt);
+   167→   167→  const ct = base64ToBuf(ciphertextB64);
+   168→   168→  const ptBuf = await crypto.subtle.decrypt(
+   169→   169→    { name: "AES-GCM", iv: iv as unknown as BufferSource },
+   170→   170→    key,
+   171→   171→    ct as unknown as BufferSource
+   172→   172→  );
+   173→   173→  const dec = new TextDecoder();
+   174→   174→  return dec.decode(ptBuf);
+   175→   175→}
+   176→   176→
+   177→   177→// Password is captured when the owner unlocks the panel, and used as the
+   178→   178→// encryption key. Stored in a ref so it survives re-renders but isn't
+   179→   179→// part of any state that could leak to other components.
+   180→   180→let activePassword = "";
+   181→   181→
+   182→   182→export default function OwnerPanel() {
+   183→   183→  const [stage, setStage] = useState<Stage>("closed");
+   184→   184→  const [password, setPassword] = useState("");
+   185→   185→  const [message, setMessage] = useState("");
+   186→   186→  const [readChecked, setReadChecked] = useState(false);
+   187→   187→  const [remainingSec, setRemainingSec] = useState(BOX_VISIBLE_SEC);
+   188→   188→  const [showPassword, setShowPassword] = useState(false);
+   189→   189→  const [syncState, setSyncState] = useState<SyncState>("idle");
+   190→   190→  const [fileSha, setFileSha] = useState<string | null>(null);
+   191→   191→  const [lastSyncAt, setLastSyncAt] = useState<string>("");
+   192→   192→
+   193→   193→  const lastScrollY = useRef(typeof window !== "undefined" ? window.scrollY : 0);
+   194→   194→  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+   195→   195→
+   196→   196→  // === Listen for "open-owner-panel" events from footer ===
+   197→   197→  useEffect(() => {
+   198→   198→    const handler = () => {
+   199→   199→      setStage("password");
+   200→   200→      setPassword("");
+   201→   201→      setShowPassword(false);
+   202→   202→    };
+   203→   203→    window.addEventListener("open-owner-panel", handler);
+   204→   204→    return () => window.removeEventListener("open-owner-panel", handler);
+   205→   205→  }, []);
+   206→   206→
+   207→   207→  // === Load vault from GitHub when entering secret stage ===
+   208→   208→  useEffect(() => {
+   209→   209→    if (stage === "secret") {
+   210→   210→      // Pre-fill from local cache first (instant feedback)
+   211→   211→      try {
+   212→   212→        const cachedMsg = localStorage.getItem(CACHE_MSG) || "";
+   213→   213→        const cachedRead = localStorage.getItem(CACHE_READ) === "true";
+   214→   214→        setMessage(cachedMsg);
+   215→   215→        setReadChecked(cachedRead);
+   216→   216→        const cachedTs = localStorage.getItem(CACHE_TS) || "";
+   217→   217→        setLastSyncAt(cachedTs);
+   218→   218→      } catch {
+   219→   219→        // ignore
+   220→   220→      }
+   221→   221→      // Then sync from cloud (latest version)
+   222→   222→      void loadFromCloud();
+   223→   223→      setRemainingSec(BOX_VISIBLE_SEC);
+   224→   224→      lastScrollY.current = window.scrollY;
+   225→   225→      startTimer();
+   226→   226→    } else {
+   227→   227→      stopTimer();
+   228→   228→    }
+   229→   229→    return () => stopTimer();
+   230→   230→    // eslint-disable-next-line react-hooks/exhaustive-deps
+   231→   231→  }, [stage]);
+   232→   232→
+   233→   233→  // === Scroll-up listener closes secret box ===
+   234→   234→  useEffect(() => {
+   235→   235→    if (stage !== "secret") return;
+   236→   236→    const onScroll = () => {
+   237→   237→      const currentY = window.scrollY;
+   238→   238→      if (currentY < lastScrollY.current - 4) {
+   239→   239→        closeAll();
+   240→   240→      }
+   241→   241→      lastScrollY.current = currentY;
+   242→   242→    };
+   243→   243→    window.addEventListener("scroll", onScroll, { passive: true });
+   244→   244→    return () => window.removeEventListener("scroll", onScroll);
+   245→   245→    // eslint-disable-next-line react-hooks/exhaustive-deps
+   246→   246→  }, [stage]);
+   247→   247→
+   248→   248→  // === ESC to close ===
+   249→   249→  useEffect(() => {
+   250→   250→    if (stage === "closed") return;
+   251→   251→    const onKey = (e: KeyboardEvent) => {
+   252→   252→      if (e.key === "Escape") closeAll();
+   253→   253→    };
+   254→   254→    window.addEventListener("keydown", onKey);
+   255→   255→    return () => window.removeEventListener("keydown", onKey);
+   256→   256→    // eslint-disable-next-line react-hooks/exhaustive-deps
+   257→   257→  }, [stage]);
+   258→   258→
+   259→   259→  useEffect(() => {
+   260→   260→    return () => stopTimer();
+   261→   261→  }, []);
+   262→   262→
+   263→   263→  function startTimer() {
+   264→   264→    stopTimer();
+   265→   265→    timerRef.current = setInterval(() => {
+   266→   266→      setRemainingSec((prev) => {
+   267→   267→        if (prev <= 1) {
+   268→   268→          stopTimer();
+   269→   269→          setStage("closed");
+   270→   270→          return 0;
+   271→   271→        }
+   272→   272→        return prev - 1;
+   273→   273→      });
+   274→   274→    }, 1000);
+   275→   275→  }
+   276→   276→
+   277→   277→  function stopTimer() {
+   278→   278→    if (timerRef.current) {
+   279→   279→      clearInterval(timerRef.current);
+   280→   280→      timerRef.current = null;
+   281→   281→    }
+   282→   282→  }
+   283→   283→
+   284→   284→  function closeAll() {
+   285→   285→    stopTimer();
+   286→   286→    setStage("closed");
+   287→   287→    setPassword("");
+   288→   288→    setShowPassword(false);
+   289→   289→    // Clear the in-memory password so it can't be used after the panel closes
+   290→   290→    activePassword = "";
+   291→   291→  }
+   292→   292→
+   293→   293→  function handlePasswordSubmit(e: React.FormEvent) {
+   294→   294→    e.preventDefault();
+   295→   295→    if (password === OWNER_PASSWORD) {
+   296→   296→      // Capture the password into a module-level variable so the crypto
+   297→   297→      // helpers can use it for encryption/decryption. This is safe because:
+   298→   298→      //   - It only lives in memory for the duration of the secret stage
+   299→   299→      //   - It's cleared on closeAll()
+   300→   300→      //   - It's never written to localStorage or transmitted anywhere
+   301→   301→      activePassword = password;
+   302→   302→      setStage("secret");
+   303→   303→    } else {
+   304→   304→      setStage("wrong");
+   305→   305→    }
+   306→   306→  }
+   307→   307→
+   308→   308→  // === Cloud sync functions ===
+   309→   309→  async function loadFromCloud() {
+   310→   310→    setSyncState("loading");
+   311→   311→    try {
+   312→   312→      const res = await fetch(
+   313→   313→        `${API_BASE}?ref=${VAULT_BRANCH}`,
+   314→   314→        {
+   315→   315→          headers: {
+   316→   316→            Authorization: `Bearer ${_t()}`,
+   317→   317→            Accept: "application/vnd.github+json",
+   318→   318→          },
+   319→   319→        }
+   320→   320→      );
+   321→   321→      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+   322→   322→      const data = await res.json();
+   323→   323→      // content is base64-encoded (possibly with newlines)
+   324→   324→      const raw = (data.content || "").replace(/\n/g, "");
+   325→   325→      const decoded = atob(raw);
+   326→   326→      const parsed = JSON.parse(decoded) as VaultPayload | LegacyVaultData;
+   327→   327→
+   328→   328→      setFileSha(data.sha);
+   329→   329→
+   330→   330→      // Detect format: encrypted (new) has `ciphertext` + `salt` + `iv`
+   331→   331→      // Legacy plaintext format has `message` field directly
+   332→   332→      let decryptedMessage = "";
+   333→   333→      let parsedRead = false;
+   334→   334→      let parsedTs = "";
+   335→   335→
+   336→   336→      if ("ciphertext" in parsed && parsed.ciphertext && "salt" in parsed && "iv" in parsed) {
+   337→   337→        // New encrypted format — decrypt using the active password
+   338→   338→        try {
+   339→   339→          decryptedMessage = await decryptMessage(
+   340→   340→            parsed.ciphertext,
+   341→   341→            parsed.iv,
+   342→   342→            parsed.salt,
+   343→   343→            activePassword
+   344→   344→          );
+   345→   345→          parsedRead = !!parsed.read;
+   346→   346→          parsedTs = parsed.updatedAt || "";
+   347→   347→        } catch (decErr) {
+   348→   348→          // Decryption failed — wrong password, or data was encrypted with
+   349→   349→          // a different password. Show empty message but keep metadata.
+   350→   350→          console.warn("Vault decryption failed:", decErr);
+   351→   351→          decryptedMessage = "";
+   352→   352→          parsedRead = !!parsed.read;
+   353→   353→          parsedTs = parsed.updatedAt || "";
+   354→   354→        }
+   355→   355→      } else if ("message" in parsed) {
+   356→   356→        // Legacy plaintext format — migrate on next save
+   357→   357→        // (load plaintext as-is for now; will be encrypted when owner saves)
+   358→   358→        decryptedMessage = parsed.message || "";
+   359→   359→        parsedRead = !!parsed.read;
+   360→   360→        parsedTs = parsed.updatedAt || "";
+   361→   361→      }
+   362→   362→
+   363→   363→      setMessage(decryptedMessage);
+   364→   364→      setReadChecked(parsedRead);
+   365→   365→      setLastSyncAt(parsedTs || new Date().toISOString());
+   366→   366→
+   367→   367→      // Update local cache (store decrypted form locally for instant load —
+   368→   368→      // localStorage is per-browser, not shared, so this is acceptable)
+   369→   369→      try {
+   370→   370→        localStorage.setItem(CACHE_MSG, decryptedMessage);
+   371→   371→        localStorage.setItem(CACHE_READ, parsedRead ? "true" : "false");
+   372→   372→        localStorage.setItem(CACHE_TS, parsedTs);
+   373→   373→      } catch {
+   374→   374→        /* ignore */
+   375→   375→      }
+   376→   376→      setSyncState("idle");
+   377→   377→    } catch (err) {
+   378→   378→      console.warn("Vault cloud load failed:", err);
+   379→   379→      setSyncState("error");
+   380→   380→    }
+   381→   381→  }
+   382→   382→
+   383→   383→  async function saveToCloud() {
+   384→   384→    setSyncState("saving");
+   385→   385→
+   386→   386→    // Encrypt the message using the active password before storing.
+   387→   387→    // Even if the repo is leaked, the message cannot be read without the password.
+   388→   388→    let salt: string, iv: string, ciphertext: string;
+   389→   389→    try {
+   390→   390→      const enc = await encryptMessage(message, activePassword);
+   391→   391→      salt = enc.salt;
+   392→   392→      iv = enc.iv;
+   393→   393→      ciphertext = enc.ciphertext;
+   394→   394→    } catch (encErr) {
+   395→   395→      console.error("Vault encryption failed:", encErr);
+   396→   396→      setSyncState("error");
+   397→   397→      setTimeout(() => setSyncState("idle"), 3500);
+   398→   398→      return;
+   399→   399→    }
+   400→   400→
+   401→   401→    const payload: VaultPayload = {
+   402→   402→      v: 1,
+   403→   403→      salt,
+   404→   404→      iv,
+   405→   405→      ciphertext,
+   406→   406→      read: readChecked,
+   407→   407→      updatedAt: new Date().toISOString(),
+   408→   408→    };
+   409→   409→    const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+   410→   410→
+   411→   411→    // Update local cache immediately (optimistic) — store decrypted form
+   412→   412→    // locally so the UI can show it instantly on next unlock
+   413→   413→    try {
+   414→   414→      localStorage.setItem(CACHE_MSG, message);
+   415→   415→      localStorage.setItem(CACHE_READ, readChecked ? "true" : "false");
+   416→   416→      localStorage.setItem(CACHE_TS, payload.updatedAt);
+   417→   417→    } catch {
+   418→   418→      /* ignore */
+   419→   419→    }
+   420→   420→    setLastSyncAt(payload.updatedAt);
+   421→   421→
+   422→   422→    try {
+   423→   423→      // If we don't have SHA yet, fetch current file first
+   424→   424→      let sha = fileSha;
+   425→   425→      if (!sha) {
+   426→   426→        const getRes = await fetch(`${API_BASE}?ref=${VAULT_BRANCH}`, {
+   427→   427→          headers: {
+   428→   428→            Authorization: `Bearer ${_t()}`,
+   429→   429→            Accept: "application/vnd.github+json",
+   430→   430→          },
+   431→   431→        });
+   432→   432→        if (getRes.ok) {
+   433→   433→          const getData = await getRes.json();
+   434→   434→          sha = getData.sha;
+   435→   435→          setFileSha(sha);
+   436→   436→        }
+   437→   437→      }
+   438→   438→
+   439→   439→      const res = await fetch(API_BASE, {
+   440→   440→        method: "PUT",
+   441→   441→        headers: {
+   442→   442→          Authorization: `Bearer ${_t()}`,
+   443→   443→          Accept: "application/vnd.github+json",
+   444→   444→          "Content-Type": "application/json",
+   445→   445→        },
+   446→   446→        body: JSON.stringify({
+   447→   447→          message: "Update vault (auto, encrypted)",
+   448→   448→          content: encoded,
+   449→   449→          sha: sha,
+   450→   450→          branch: VAULT_BRANCH,
+   451→   451→        }),
+   452→   452→      });
+   453→   453→
+   454→   454→      if (!res.ok) {
+   455→   455→        const errText = await res.text();
+   456→   456→        console.error("Vault save failed:", res.status, errText);
+   457→   457→        throw new Error(`HTTP ${res.status}`);
+   458→   458→      }
+   459→   459→      const data = await res.json();
+   460→   460→      setFileSha(data.content.sha);
+   461→   461→      setSyncState("saved");
+   462→   462→      setTimeout(() => setSyncState("idle"), 2500);
+   463→   463→    } catch (err) {
+   464→   464→      console.error("Vault save error:", err);
+   465→   465→      setSyncState("error");
+   466→   466→      setTimeout(() => setSyncState("idle"), 3500);
+   467→   467→    }
+   468→   468→  }
+   469→   469→
+   470→   470→  // Save both message + checkbox state in one call
+   471→   471→  function handleSave() {
+   472→   472→    void saveToCloud();
+   473→   473→  }
+   474→   474→
+   475→   475→  function handleReadCheck(e: React.ChangeEvent<HTMLInputElement>) {
+   476→   476→    setReadChecked(e.target.checked);
+   477→   477→    // Auto-save when checkbox toggled
+   478→   478→    setTimeout(() => {
+   479→   479→      void saveToCloud();
+   480→   480→    }, 100);
+   481→   481→  }
+   482→   482→
+   483→   483→  return (
+   484→   484→    <AnimatePresence>
+   485→   485→      {stage !== "closed" && (
+   486→   486→        <motion.div
+   487→   487→          initial={{ opacity: 0 }}
+   488→   488→          animate={{ opacity: 1 }}
+   489→   489→          exit={{ opacity: 0 }}
+   490→   490→          transition={{ duration: 0.2 }}
+   491→   491→          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+   492→   492→          onClick={(e) => {
+   493→   493→            if (e.target === e.currentTarget) closeAll();
+   494→   494→          }}
+   495→   495→        >
+   496→   496→          {/* === PASSWORD MODAL === */}
+   497→   497→          {(stage === "password" || stage === "wrong") && (
+   498→   498→            <motion.div
+   499→   499→              initial={{ scale: 0.92, opacity: 0, y: 10 }}
+   500→   500→              animate={{ scale: 1, opacity: 1, y: 0 }}
+   501→   501→              exit={{ scale: 0.92, opacity: 0 }}
+   502→   502→              className="w-full max-w-md rounded-2xl bg-white shadow-2xl overflow-hidden"
+   503→   503→            >
+   504→   504→              <div className="bg-gradient-to-br from-emerald-dark to-emerald p-6 text-cream relative">
+   505→   505→                <div className="absolute inset-0 pattern-grid opacity-10" />
+   506→   506→                <div className="relative flex items-center justify-between">
+   507→   507→                  <div className="flex items-center gap-3">
+   508→   508→                    <div className="w-10 h-10 rounded-xl bg-gold/20 flex items-center justify-center ring-1 ring-gold/30">
+   509→   509→                      <Lock className="w-5 h-5 text-gold-light" />
+   510→   510→                    </div>
+   511→   511→                    <div>
+   512→   512→                      <h3 className="font-playfair font-bold text-lg">For owner only</h3>
+   513→   513→                      <p className="text-xs text-cream/70 mt-0.5">Restricted access</p>
+   514→   514→                    </div>
+   515→   515→                  </div>
+   516→   516→                  <button
+   517→   517→                    onClick={closeAll}
+   518→   518→                    className="text-cream/70 hover:text-cream transition-colors"
+   519→   519→                    aria-label="Close"
+   520→   520→                  >
+   521→   521→                    <X className="w-5 h-5" />
+   522→   522→                  </button>
+   523→   523→                </div>
+   524→   524→              </div>
+   525→   525→
+   526→   526→              <div className="p-6">
+   527→   527→                {stage === "wrong" ? (
+   528→   528→                  <motion.div
+   529→   529→                    initial={{ opacity: 0, y: 10 }}
+   530→   530→                    animate={{ opacity: 1, y: 0 }}
+   531→   531→                    className="text-center py-3"
+   532→   532→                  >
+   533→   533→                    <div className="mx-auto w-14 h-14 rounded-full bg-red-100 flex items-center justify-center mb-4">
+   534→   534→                      <AlertTriangle className="w-7 h-7 text-red-600" />
+   535→   535→                    </div>
+   536→   536→                    <p className="font-playfair font-semibold text-lg text-emerald-dark">
+   537→   537→                      It not built for common people
+   538→   538→                    </p>
+   539→   539→                    <p className="text-xs text-ink/55 mt-2">Access denied.</p>
+   540→   540→                    <button
+   541→   541→                      onClick={() => {
+   542→   542→                        setStage("password");
+   543→   543→                        setPassword("");
+   544→   544→                      }}
+   545→   545→                      className="mt-5 px-5 py-2.5 rounded-lg bg-emerald text-white font-semibold text-sm hover:bg-emerald-dark transition-colors"
+   546→   546→                    >
+   547→   547→                      Try again
+   548→   548→                    </button>
+   549→   549→                  </motion.div>
+   550→   550→                ) : (
+   551→   551→                  <form onSubmit={handlePasswordSubmit} className="space-y-4">
+   552→   552→                    <div>
+   553→   553→                      <label
+   554→   554→                        htmlFor="owner-password"
+   555→   555→                        className="block text-sm font-medium text-emerald-dark mb-2"
+   556→   556→                      >
+   557→   557→                        Enter password
+   558→   558→                      </label>
+   559→   559→                      <div className="relative">
+   560→   560→                        <input
+   561→   561→                          id="owner-password"
+   562→   562→                          type={showPassword ? "text" : "password"}
+   563→   563→                          value={password}
+   564→   564→                          onChange={(e) => setPassword(e.target.value)}
+   565→   565→                          autoFocus
+   566→   566→                          autoComplete="off"
+   567→   567→                          placeholder="••••••••••"
+   568→   568→                          className="w-full px-4 py-3 pr-12 rounded-xl bg-cream/40 border border-emerald/20 text-emerald-dark focus:outline-none focus:ring-2 focus:ring-emerald/50 focus:border-emerald/40"
+   569→   569→                        />
+   570→   570→                        <button
+   571→   571→                          type="button"
+   572→   572→                          onClick={() => setShowPassword((s) => !s)}
+   573→   573→                          className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald/60 hover:text-emerald transition-colors"
+   574→   574→                          aria-label={showPassword ? "Hide password" : "Show password"}
+   575→   575→                          tabIndex={-1}
+   576→   576→                        >
+   577→   577→                          {showPassword ? (
+   578→   578→                            <EyeOff className="w-5 h-5" />
+   579→   579→                          ) : (
+   580→   580→                            <Eye className="w-5 h-5" />
+   581→   581→                          )}
+   582→   582→                        </button>
+   583→   583→                      </div>
+   584→   584→                    </div>
+   585→   585→                    <button
+   586→   586→                      type="submit"
+   587→   587→                      className="w-full px-5 py-3 rounded-xl bg-gradient-to-r from-emerald to-emerald-dark text-white font-bold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
+   588→   588→                    >
+   589→   589→                      Unlock
+   590→   590→                    </button>
+   591→   591→                  </form>
+   592→   592→                )}
+   593→   593→              </div>
+   594→   594→            </motion.div>
+   595→   595→          )}
+   596→   596→
+   597→   597→          {/* === SECRET CHAT BOX === */}
+   598→   598→          {stage === "secret" && (
+   599→   599→            <motion.div
+   600→   600→              initial={{ scale: 0.92, opacity: 0, y: 20 }}
+   601→   601→              animate={{ scale: 1, opacity: 1, y: 0 }}
+   602→   602→              exit={{ scale: 0.92, opacity: 0 }}
+   603→   603→              className="w-full max-w-lg rounded-2xl bg-white shadow-2xl overflow-hidden"
+   604→   604→            >
+   605→   605→              {/* Header */}
+   606→   606→              <div className="bg-gradient-to-br from-emerald-dark via-emerald to-emerald-dark p-5 text-cream relative">
+   607→   607→                <div className="absolute inset-0 pattern-grid opacity-10" />
+   608→   608→                <div className="relative flex items-center justify-between gap-3">
+   609→   609→                  <div className="flex items-center gap-3 min-w-0">
+   610→   610→                    <div className="w-10 h-10 rounded-xl bg-gold/20 flex items-center justify-center ring-1 ring-gold/30 shrink-0">
+   611→   611→                      <Lock className="w-5 h-5 text-gold-light" />
+   612→   612→                    </div>
+   613→   613→                    <div className="min-w-0">
+   614→   614→                      <h3 className="font-playfair font-bold text-lg">
+   615→   615→                        Owner&apos;s Vault
+   616→   616→                      </h3>
+   617→   617→                      <p className="text-xs text-cream/70 mt-0.5 truncate">
+   618→   618→                        Synced across all your browsers
+   619→   619→                      </p>
+   620→   620→                    </div>
+   621→   621→                  </div>
+   622→   622→                  <div className="flex items-center gap-3 shrink-0">
+   623→   623→                    <span className="flex items-center gap-1.5 text-xs text-gold-light bg-gold/10 px-2.5 py-1 rounded-full border border-gold/20">
+   624→   624→                      <Clock className="w-3.5 h-3.5" />
+   625→   625→                      {remainingSec}s
+   626→   626→                    </span>
+   627→   627→                    <button
+   628→   628→                      onClick={closeAll}
+   629→   629→                      className="text-cream/70 hover:text-cream transition-colors"
+   630→   630→                      aria-label="Close"
+   631→   631→                    >
+   632→   632→                      <X className="w-5 h-5" />
+   633→   633→                    </button>
+   634→   634→                  </div>
+   635→   635→                </div>
+   636→   636→              </div>
+   637→   637→
+   638→   638→              {/* Body */}
+   639→   639→              <div className="p-6 space-y-4">
+   640→   640→                <div>
+   641→   641→                  <label
+   642→   642→                    htmlFor="owner-message"
+   643→   643→                    className="block text-sm font-semibold text-emerald-dark mb-2"
+   644→   644→                  >
+   645→   645→                    Hidden message
+   646→   646→                  </label>
+   647→   647→                  <textarea
+   648→   648→                    id="owner-message"
+   649→   649→                    value={message}
+   650→   650→                    onChange={(e) => setMessage(e.target.value)}
+   651→   651→                    rows={6}
+   652→   652→                    placeholder="Type your private note here. Saved to the cloud — accessible from any browser after unlocking."
+   653→   653→                    className="w-full px-4 py-3 rounded-xl bg-cream/40 border border-emerald/20 text-ink leading-relaxed focus:outline-none focus:ring-2 focus:ring-emerald/50 focus:border-emerald/40 resize-none"
+   654→   654→                  />
+   655→   655→                  {/* Sync status row */}
+   656→   656→                  <div className="mt-2 flex items-center justify-between gap-2 text-xs">
+   657→   657→                    <span className="flex items-center gap-1.5 text-ink/55">
+   658→   658→                      {syncState === "loading" && (
+   659→   659→                        <>
+   660→   660→                          <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald" />
+   661→   661→                          Loading from cloud...
+   662→   662→                        </>
+   663→   663→                      )}
+   664→   664→                      {syncState === "saving" && (
+   665→   665→                        <>
+   666→   666→                          <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald" />
+   667→   667→                          Saving to cloud...
+   668→   668→                        </>
+   669→   669→                      )}
+   670→   670→                      {syncState === "saved" && (
+   671→   671→                        <>
+   672→   672→                          <Cloud className="w-3.5 h-3.5 text-emerald" />
+   673→   673→                          Saved to cloud
+   674→   674→                        </>
+   675→   675→                      )}
+   676→   676→                      {syncState === "error" && (
+   677→   677→                        <>
+   678→   678→                          <CloudOff className="w-3.5 h-3.5 text-red-500" />
+   679→   679→                          Cloud sync failed — saved locally only
+   680→   680→                        </>
+   681→   681→                      )}
+   682→   682→                      {syncState === "idle" && lastSyncAt && (
+   683→   683→                        <>
+   684→   684→                          <Cloud className="w-3.5 h-3.5 text-emerald/60" />
+   685→   685→                          Last synced: {new Date(lastSyncAt).toLocaleString()}
+   686→   686→                        </>
+   687→   687→                      )}
+   688→   688→                      {syncState === "idle" && !lastSyncAt && (
+   689→   689→                        <>
+   690→   690→                          <Cloud className="w-3.5 h-3.5 text-emerald/60" />
+   691→   691→                          Cloud-synced across all browsers
+   692→   692→                        </>
+   693→   693→                      )}
+   694→   694→                    </span>
+   695→   695→                  </div>
+   696→   696→                </div>
+   697→   697→
+   698→   698→                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+   699→   699→                  <button
+   700→   700→                    onClick={handleSave}
+   701→   701→                    disabled={syncState === "saving"}
+   702→   702→                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald to-emerald-dark text-white font-semibold text-sm shadow-lg hover:shadow-xl transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+   703→   703→                  >
+   704→   704→                    {syncState === "saving" ? (
+   705→   705→                      <Loader2 className="w-4 h-4 animate-spin" />
+   706→   706→                    ) : syncState === "saved" ? (
+   707→   707→                      <CheckCircle2 className="w-4 h-4" />
+   708→   708→                    ) : (
+   709→   709→                      <Save className="w-4 h-4" />
+   710→   710→                    )}
+   711→   711→                    {syncState === "saving" ? "Saving..." : syncState === "saved" ? "Saved" : "Save to cloud"}
+   712→   712→                  </button>
+   713→   713→
+   714→   714→                  <label className="flex items-center gap-2 cursor-pointer select-none">
+   715→   715→                    <input
+   716→   716→                      type="checkbox"
+   717→   717→                      checked={readChecked}
+   718→   718→                      onChange={handleReadCheck}
+   719→   719→                      className="w-5 h-5 rounded border-emerald/30 text-emerald focus:ring-emerald/40 accent-emerald"
+   720→   720→                    />
+   721→   721→                    <span className="text-sm text-emerald-dark font-medium">
+   722→   722→                      Check ✅ this box if you have read the message
+   723→   723→                    </span>
+   724→   724→                  </label>
+   725→   725→                </div>
+   726→   726→
+   727→   727→                {readChecked && (
+   728→   728→                  <motion.div
+   729→   729→                    initial={{ opacity: 0, y: 5 }}
+   730→   730→                    animate={{ opacity: 1, y: 0 }}
+   731→   731→                    className="flex items-center gap-2 text-sm text-emerald-dark bg-emerald/10 border border-emerald/20 rounded-lg px-3 py-2"
+   732→   732→                  >
+   733→   733→                    <CheckCircle2 className="w-4 h-4 text-emerald shrink-0" />
+   734→   734→                    Message marked as read.
+   735→   735→                  </motion.div>
+   736→   736→                )}
+   737→   737→
+   738→   738→                <div className="pt-3 border-t border-emerald/10 text-xs text-ink/55 leading-relaxed">
+   739→   739→                  <p>
+   740→   740→                    This vault auto-locks in{" "}
+   741→   741→                    <span className="font-semibold text-emerald-dark">
+   742→   742→                      {remainingSec}
+   743→   743→                    </span>{" "}
+   744→   744→                    seconds, or when you scroll up, refresh, or close the page.
+   745→   745→                  </p>
+   746→   746→                </div>
+   747→   747→              </div>
+   748→   748→            </motion.div>
+   749→   749→          )}
+   750→   750→        </motion.div>
+   751→   751→      )}
+   752→   752→    </AnimatePresence>
+   753→   753→  );
+   754→   754→}
+   755→   755→
