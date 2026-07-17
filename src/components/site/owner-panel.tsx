@@ -38,7 +38,7 @@ const API_BASE = `https://api.github.com/repos/${VAULT_REPO}/contents/${VAULT_FI
 const CACHE_MSG = "cssbesthub_owner_msg_cache"; // stores JSON [dumbi, dumbo]
 const CACHE_TS = "cssbesthub_owner_msg_ts_cache";
 
-const BOX_VISIBLE_SEC = 60;
+const BOX_VISIBLE_SEC = 90;
 
 type Stage = "closed" | "password" | "secret" | "wrong";
 type SyncState = "idle" | "loading" | "saving" | "saved" | "error";
@@ -225,6 +225,14 @@ export default function OwnerPanel() {
   const [lastSyncAt, setLastSyncAt] = useState<string>("");
 
   const lastScrollY = useRef(typeof window !== "undefined" ? window.scrollY : 0);
+  // Tracks the scroll position at the moment the user started scrolling UP.
+  // We only close the vault if the user keeps scrolling up by a meaningful
+  // amount (≥ 220 px) — small accidental scrolls (touchpad jitter, mobile
+  // pull-to-refresh gestures, a single notch on a mouse wheel) are ignored.
+  const scrollUpStartY = useRef<number | null>(null);
+  // Avoid closing on the very first scroll event right after unlock —
+  // the page may have a pending scroll-to-top adjustment.
+  const scrollGraceUntil = useRef<number>(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // === Listen for "open-owner-panel" events from footer ===
@@ -266,12 +274,47 @@ export default function OwnerPanel() {
   }, [stage]);
 
   // === Scroll-up listener closes secret box ===
+  // Only a SUSTAINED upward scroll closes the vault. We track the highest
+  // point the user has scrolled up FROM, and only trigger close if they've
+  // moved up by ≥ 220 px since the last downward motion. Small scrolls
+  // (touchpad jitter, mouse-wheel notch, mobile pull-to-refresh gesture)
+  // are absorbed without closing.
   useEffect(() => {
     if (stage !== "secret") return;
+    const SCROLL_UP_THRESHOLD_PX = 220;
+    const GRACE_PERIOD_MS = 800;
+    // Set a grace window right after entering the secret stage so the
+    // initial scroll-snap / scroll-to-top from the modal opening doesn't
+    // count as a "user scroll up".
+    scrollGraceUntil.current = Date.now() + GRACE_PERIOD_MS;
+    scrollUpStartY.current = null;
+    lastScrollY.current = window.scrollY;
+
     const onScroll = () => {
+      if (Date.now() < scrollGraceUntil.current) {
+        // Still in grace window — just track position, don't evaluate.
+        lastScrollY.current = window.scrollY;
+        return;
+      }
       const currentY = window.scrollY;
-      if (currentY < lastScrollY.current - 4) {
-        closeAll();
+      const prevY = lastScrollY.current;
+      const delta = currentY - prevY;
+
+      if (delta < 0) {
+        // Scrolling UP. Anchor the start of the upward motion if not yet set,
+        // or keep the earliest (highest) starting position.
+        if (scrollUpStartY.current === null) {
+          scrollUpStartY.current = prevY;
+        }
+        const totalUp = (scrollUpStartY.current ?? prevY) - currentY;
+        if (totalUp >= SCROLL_UP_THRESHOLD_PX) {
+          closeAll();
+          return;
+        }
+      } else if (delta > 0) {
+        // Scrolling DOWN — reset the upward-motion anchor. A downward move
+        // means the user is engaging with the page, not trying to dismiss.
+        scrollUpStartY.current = null;
       }
       lastScrollY.current = currentY;
     };
@@ -763,7 +806,7 @@ export default function OwnerPanel() {
                     <span className="font-semibold text-emerald-dark">
                       {remainingSec}
                     </span>{" "}
-                    seconds, or when you scroll up, refresh, or close the page.
+                    seconds, or when you scroll up sharply, refresh, or close the page.
                   </p>
                 </div>
               </div>
