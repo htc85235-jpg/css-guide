@@ -12,7 +12,6 @@ const QUICK_LINKS = [
 ];
 
 const PREP_LINKS = [
-  { label: "Toppers&apos; Stories", href: "#toppers" },
   { label: "Preparation Tips", href: "#resources" },
   { label: "Recommended Books", href: "#resources" },
   { label: "Daily Routine", href: "#resources" },
@@ -21,7 +20,7 @@ const PREP_LINKS = [
 
 const EXTERNAL_LINKS = [
   { label: "FPSC Official Website", href: "https://www.fpsc.gov.pk" },
-  { label: "CSS Point — Syllabus", href: "https://www.csspoint.com.pk/css-syllabus" },
+  { label: "The CSS Point — Syllabus", href: "https://thecsspoint.com" },
   { label: "CSS Forum Pakistan", href: "https://www.cssforum.com.pk" },
   { label: "Dawn Newspaper", href: "https://www.dawn.com" },
   { label: "HEC Pakistan", href: "https://www.hec.gov.pk" },

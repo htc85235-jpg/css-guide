@@ -85,11 +85,11 @@ export default function CTA() {
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </a>
               <a
-                href="#toppers"
+                href="#quotes"
                 className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-cream/10 text-cream border border-cream/20 font-semibold hover:bg-cream/15 transition-all"
               >
                 <Users className="w-4 h-4" />
-                Read Toppers&apos; Stories
+                Daily Motivation
               </a>
             </motion.div>
 

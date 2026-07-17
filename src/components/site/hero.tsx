@@ -78,11 +78,11 @@ export default function Hero() {
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </a>
             <a
-              href="#toppers"
+              href="#quotes"
               className="px-6 py-3.5 rounded-xl bg-white text-emerald-dark font-semibold border border-emerald/20 hover:border-emerald/40 hover:bg-emerald/5 transition-all flex items-center justify-center gap-2"
             >
-              <BookOpen className="w-4 h-4" />
-              Toppers&apos; Stories
+              <Sparkles className="w-4 h-4" />
+              Daily Motivation
             </a>
           </motion.div>
 

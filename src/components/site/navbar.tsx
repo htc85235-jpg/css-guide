@@ -11,7 +11,6 @@ const NAV_LINKS = [
   { label: "Compulsory", href: "#compulsory" },
   { label: "Optional", href: "#optional" },
   { label: "Schedule", href: "#schedule" },
-  { label: "Toppers", href: "#toppers" },
   { label: "Resources", href: "#resources" },
   { label: "FAQ", href: "#faq" },
 ];

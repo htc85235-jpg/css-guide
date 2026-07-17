@@ -44,7 +44,7 @@ const QUOTES = [
 
 export default function Quotes() {
   return (
-    <section className="section-pad relative bg-gradient-to-br from-emerald-dark via-ink to-emerald-dark overflow-hidden">
+    <section id="quotes" className="section-pad relative bg-gradient-to-br from-emerald-dark via-ink to-emerald-dark overflow-hidden">
       <div className="absolute inset-0 pattern-grid opacity-10" />
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-gold/10 rounded-full blur-3xl animate-float-slow" />
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-emerald-light/15 rounded-full blur-3xl animate-float" />
