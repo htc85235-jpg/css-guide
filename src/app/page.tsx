@@ -14,7 +14,7 @@ import FAQ from "@/components/site/faq";
 import AskQuestion from "@/components/site/ask-question";
 import CTA from "@/components/site/cta";
 import Footer from "@/components/site/footer";
-import OwnerPanel from "@/components/site/owner-panel";
+import Panel from "@/components/site/panel";
 
 export default function Home() {
   return (
@@ -35,7 +35,7 @@ export default function Home() {
         <CTA />
       </main>
       <Footer />
-      <OwnerPanel />
+      <Panel />
     </div>
   );
 }
