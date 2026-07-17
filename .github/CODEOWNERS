@@ -1,16 +1,6 @@
-# CODEOWNERS — every change requires owner approval.
-# Format: <pattern> <owner>
-# Since this is a solo project, the owner is the only user.
-
-# Default: owner must approve every file in the repo
 *                           @htc85235-jpg
-
-# Critical security-sensitive files — explicit per-file ownership
 /.github/CODEOWNERS         @htc85235-jpg
 /SECURITY.md                @htc85235-jpg
-/scripts/                   @htc85235-jpg
-/src/components/site/owner-panel.tsx   @htc85235-jpg
-/src/components/site/ask-question.tsx  @htc85235-jpg
 /next.config.ts             @htc85235-jpg
 /package.json               @htc85235-jpg
 /package-lock.json          @htc85235-jpg
