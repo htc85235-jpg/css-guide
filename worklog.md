@@ -553,3 +553,31 @@ Stage Summary:
 - Vault schema migration is backward-compatible: legacy plaintext vaults and legacy encrypted vaults (with `read` field) both load fine; new saves always write the new two-box encrypted format without `read`.
 - The hardcoded PAT that was blocking pushes has been removed from working tree and from all commits being pushed. The `backup-before-squash` branch still contains the old history with the token — should be deleted once we're confident nothing was lost.
 - Deploy is now self-contained: `npm run build:static && node scripts/deploy-gh-pages.js` works without env var setup.
+
+---
+Task ID: fix-basepath-cssbesthub-to-css-guide
+Agent: main (Super Z)
+Task: User reported "Application error: a client-side exception has occurred while loading htc85235-jpg.github.io" — site was broken on all browsers.
+
+Work Log:
+- Inspected live HTML and discovered all <script src=...> tags pointed to /cssbesthub/_next/static/chunks/... but the site is served from https://htc85235-jpg.github.io/css-guide/ (repo name = "css-guide", with hyphen).
+- curl test confirmed: GET https://htc85235-jpg.github.io/cssbesthub/_next/static/chunks/9dcae0e63563fc1c.js → HTTP 404 + HTML body (Next.js 404 page).
+- Browsers receiving HTML instead of JS → "Unexpected token '<'" parse error → Next.js surfaces as "client-side exception".
+- Root cause: next.config.ts had `const repo = "cssbesthub"` (legacy from when the site was deployed to a separate `htc85235-jpg/cssbesthub` repo). When we switched to deploying via gh-pages branch of the `css-guide` repo, the basePath was never updated.
+- Fixed next.config.ts: `const repo = "css-guide"` (+ updated comment).
+- Fixed src/app/layout.tsx: favicon icon paths "/cssbesthub/logo.svg" → "/css-guide/logo.svg" (3 occurrences).
+- Cleaned out/ and .next/, ran `GITHUB_ACTIONS=true npm run build:static` — verified build output now references /css-guide/_next/... in all <script src> tags and /css-guide/logo.svg in favicon <link> tags.
+- Ran `node scripts/deploy-gh-pages.js` → pushed new commit to gh-pages branch (SHA 0464db71efe26c9a6161864ae4a00927ca76385d).
+- Verified live site:
+    * HTML <script src> all reference /css-guide/_next/...
+    * All 9 chunk files return HTTP 200 with content-type application/javascript
+    * Node `new Function(code)` syntax check passes on ALL chunks (previously 9dcae0e63563fc1c.js was returning HTML 404 page and failing with "Unexpected token '<'")
+    * Favicon at /css-guide/logo.svg returns HTTP 200, content-type image/svg+xml
+    * Dumbi Box, Dumbo Box, owner-dumbi, owner-dumbo, cssaspirants.pk/css-syllabus/ all present in live chunk
+    * Hero "Explore Syllabus" button has href="#syllabus"
+- Committed and pushed fix to main.
+
+Stage Summary:
+- The "client-side exception" is fully resolved. The site now loads correctly.
+- All 4 user-requested changes (vault checkbox removed, Dumbi/Dumbo split, cssaspirants URL, hero #syllabus link) are confirmed live and the JS bundle is valid.
+- Users should now hard-refresh (Ctrl+Shift+R / Cmd+Shift+R) or open in incognito to bypass any cached 404-HTML responses from the previous broken deploy.
