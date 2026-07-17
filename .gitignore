@@ -102,7 +102,13 @@ Network Trash Folder/
 Temporary Items/
 
 # ---------- Deployment scripts that may contain tokens ----------
-# (Only deploy-gh-pages.js is whitelisted because its token is obfuscated)
+# These contain the obfuscated GitHub token chunks and MUST stay local-only.
+# They are never pushed to the public repo (even after going private).
+scripts/deploy-gh-pages.js
+scripts/harden-public-repo.js
+scripts/migrate-vault-encryption.py
+scripts/deploy-cssbesthub.sh
+scripts/icon-preview.py
 scripts/*-local.js
 scripts/local-*.sh
 
