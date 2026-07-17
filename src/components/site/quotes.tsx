@@ -17,18 +17,6 @@ const QUOTES = [
     role: "Former First Lady",
   },
   {
-    text: "The expert in anything was once a beginner. The professional in anything was once an amateur.",
-    author: "Helen Hayes",
-    img: "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?auto=format&fit=crop&w=800&q=80",
-    role: "Actress",
-  },
-  {
-    text: "Self-belief and hard work will always earn you success.",
-    author: "Virat Kohli",
-    img: "https://images.unsplash.com/photo-1571260899304-425eee4c7efc?auto=format&fit=crop&w=800&q=80",
-    role: "Cricketer",
-  },
-  {
     text: "I have not failed. I&apos;ve just found 10,000 ways that won&apos;t work.",
     author: "Thomas Edison",
     img: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&w=800&q=80",
@@ -39,6 +27,18 @@ const QUOTES = [
     author: "Quaid-e-Azam M.A. Jinnah",
     img: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=800&q=80",
     role: "Founder of Pakistan",
+  },
+  {
+    text: "Khudi ko kar buland itna ke har taqdeer se pehle, Khuda bande se khud pooche bata teri raza kya hai.",
+    author: "Allama Iqbal",
+    img: "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=800&q=80",
+    role: "Poet of the East",
+  },
+  {
+    text: "Nations are born in the hearts of poets; they prosper and die in the hands of politicians.",
+    author: "Allama Iqbal",
+    img: "https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&w=800&q=80",
+    role: "Poet of the East",
   },
 ];
 

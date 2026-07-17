@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import SectionHeading from "./section-heading";
+import AnimatedAvatar from "./animated-avatar";
 import { Quote, Trophy, MapPin } from "lucide-react";
 
 const TOPPERS = [
@@ -10,7 +11,7 @@ const TOPPERS = [
     rank: "1st Position",
     year: "CSS 2023",
     group: "Foreign Service of Pakistan (FSP)",
-    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80",
+    variant: "emerald" as const,
     quote:
       "I never aimed for rank one. I aimed for daily improvement — and one day, the rank followed. Wake up before Fajr, study till Maghrib, repeat. There is no shortcut, only discipline.",
     subjects: ["Political Science", "International Relations", "History of USA"],
@@ -20,7 +21,7 @@ const TOPPERS = [
     rank: "5th Position",
     year: "CSS 2022",
     group: "Pakistan Administrative Service (PAS)",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80",
+    variant: "gold" as const,
     quote:
       "Sociology and Journalism were my safety nets — short, scoring, and overlap with current affairs. But the real game was English Essay. Practice one essay every Sunday for two years.",
     subjects: ["Sociology", "Journalism", "Anthropology"],
@@ -30,7 +31,7 @@ const TOPPERS = [
     rank: "12th Position",
     year: "CSS 2023",
     group: "Police Service of Pakistan (PSP)",
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=600&q=80",
+    variant: "ink" as const,
     quote:
       "Being a female aspirant from a small town, the journey was lonely. But I made notes on Google Docs, joined a Telegram study circle, and never let geography become destiny.",
     subjects: ["Psychology", "Gender Studies", "Criminology"],
@@ -64,23 +65,32 @@ export default function Toppers() {
               transition={{ duration: 0.6, delay: i * 0.12 }}
               className="tilt-card group relative bg-gradient-to-br from-white to-cream/60 rounded-3xl border border-emerald/10 shadow-lg hover:shadow-2xl overflow-hidden"
             >
-              {/* Header with image */}
-              <div className="relative h-56 sm:h-64 overflow-hidden">
-                <img
-                  src={t.image}
-                  alt={t.name}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-emerald-dark/80 via-transparent to-transparent" />
-                <div className="absolute top-4 right-4">
+              {/* Header with animated avatar */}
+              <div className="relative overflow-hidden bg-gradient-to-br from-emerald-dark/5 to-gold/5 p-6 flex items-center justify-center">
+                {/* Decorative background */}
+                <div className="absolute inset-0 pattern-dots opacity-30" />
+                <div className="absolute -top-8 -right-8 w-32 h-32 bg-gold/10 rounded-full blur-2xl group-hover:bg-gold/20 transition-all" />
+                <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-emerald/10 rounded-full blur-2xl group-hover:bg-emerald/20 transition-all" />
+
+                {/* Rank badge */}
+                <div className="absolute top-4 right-4 z-10">
                   <div className="px-3 py-1.5 rounded-full bg-gold text-emerald-dark text-xs font-bold flex items-center gap-1.5 shadow-lg">
                     <Trophy className="w-3.5 h-3.5" />
                     {t.rank}
                   </div>
                 </div>
-                <div className="absolute bottom-3 left-4 right-4 text-cream">
-                  <h3 className="font-playfair font-bold text-xl leading-tight">{t.name}</h3>
-                  <p className="text-xs text-cream/85 mt-0.5">{t.year}</p>
+
+                {/* Animated avatar */}
+                <div className="relative w-full max-w-[220px] aspect-square">
+                  <AnimatedAvatar name={t.name} variant={t.variant} size={220} />
+                </div>
+
+                {/* Name overlay */}
+                <div className="absolute bottom-3 left-4 right-4 z-10">
+                  <h3 className="font-playfair font-bold text-xl leading-tight text-emerald-dark">
+                    {t.name}
+                  </h3>
+                  <p className="text-xs text-emerald/80 mt-0.5 font-semibold">{t.year}</p>
                 </div>
               </div>
 

@@ -122,7 +122,7 @@ export default function Resources() {
         <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {TIPS.map((t, i) => (
             <motion.div
-              key={t.title}
+              key={`tip-${i}`}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -149,7 +149,7 @@ export default function Resources() {
           <div className="lg:col-span-7 space-y-5">
             {RESOURCES.map((r, i) => (
               <motion.div
-                key={r.type}
+                key={`res-${r.type}`}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -165,9 +165,9 @@ export default function Resources() {
                   </h3>
                 </div>
                 <div className="grid sm:grid-cols-2 gap-2">
-                  {r.items.map((item) => (
+                  {r.items.map((item, idx) => (
                     <div
-                      key={item}
+                      key={`item-${i}-${idx}`}
                       className="flex items-start gap-2 text-sm text-ink/75"
                     >
                       <CheckCircle2 className="w-4 h-4 text-emerald shrink-0 mt-0.5" />
@@ -201,7 +201,7 @@ export default function Resources() {
               <div className="space-y-3 max-h-[28rem] overflow-y-auto pr-2">
                 {DAILY_ROUTINE.map((d, i) => (
                   <div
-                    key={i}
+                    key={`routine-${i}`}
                     className="flex items-start gap-3 p-3 rounded-lg glass-dark hover:bg-gold/10 transition-colors"
                   >
                     <div className="w-9 h-9 rounded-md bg-gold/15 flex items-center justify-center shrink-0">

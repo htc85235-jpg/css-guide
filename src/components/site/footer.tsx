@@ -4,6 +4,7 @@ import { GraduationCap, Mail, Phone, MapPin, Globe, Heart } from "lucide-react";
 
 const QUICK_LINKS = [
   { label: "About CSS", href: "#about" },
+  { label: "Syllabus", href: "#syllabus" },
   { label: "Exam Structure", href: "#exam-structure" },
   { label: "Compulsory Subjects", href: "#compulsory" },
   { label: "Optional Subjects", href: "#optional" },
@@ -20,6 +21,7 @@ const PREP_LINKS = [
 
 const EXTERNAL_LINKS = [
   { label: "FPSC Official Website", href: "https://www.fpsc.gov.pk" },
+  { label: "CSS Point — Syllabus", href: "https://www.csspoint.com.pk/css-syllabus" },
   { label: "CSS Forum Pakistan", href: "https://www.cssforum.com.pk" },
   { label: "Dawn Newspaper", href: "https://www.dawn.com" },
   { label: "HEC Pakistan", href: "https://www.hec.gov.pk" },
@@ -78,7 +80,7 @@ export default function Footer() {
             </h4>
             <ul className="space-y-2.5">
               {QUICK_LINKS.map((l) => (
-                <li key={l.href}>
+                <li key={l.label}>
                   <a
                     href={l.href}
                     className="text-sm text-cream/70 hover:text-gold-light transition-colors"
@@ -96,7 +98,7 @@ export default function Footer() {
             </h4>
             <ul className="space-y-2.5">
               {PREP_LINKS.map((l) => (
-                <li key={l.href}>
+                <li key={l.label}>
                   <a
                     href={l.href}
                     className="text-sm text-cream/70 hover:text-gold-light transition-colors"
@@ -114,7 +116,7 @@ export default function Footer() {
             </h4>
             <ul className="space-y-2.5">
               {EXTERNAL_LINKS.map((l) => (
-                <li key={l.href}>
+                <li key={l.label}>
                   <a
                     href={l.href}
                     target="_blank"

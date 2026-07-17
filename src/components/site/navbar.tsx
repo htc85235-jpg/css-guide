@@ -6,6 +6,7 @@ import { Menu, X, GraduationCap } from "lucide-react";
 
 const NAV_LINKS = [
   { label: "About", href: "#about" },
+  { label: "Syllabus", href: "#syllabus" },
   { label: "Exam Structure", href: "#exam-structure" },
   { label: "Compulsory", href: "#compulsory" },
   { label: "Optional", href: "#optional" },

@@ -3,6 +3,7 @@
 import Navbar from "@/components/site/navbar";
 import Hero from "@/components/site/hero";
 import About from "@/components/site/about";
+import Syllabus from "@/components/site/syllabus";
 import ExamStructure from "@/components/site/exam-structure";
 import Compulsory from "@/components/site/compulsory";
 import Optional from "@/components/site/optional";
@@ -21,6 +22,7 @@ export default function Home() {
       <main className="flex-1">
         <Hero />
         <About />
+        <Syllabus />
         <ExamStructure />
         <Compulsory />
         <Optional />
