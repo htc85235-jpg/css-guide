@@ -41,9 +41,9 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "CSS GUIDE Team" }],
   icons: {
-    icon: "/cssbesthub/logo.svg",
-    shortcut: "/cssbesthub/logo.svg",
-    apple: "/cssbesthub/logo.svg",
+    icon: "/css-guide/logo.svg",
+    shortcut: "/css-guide/logo.svg",
+    apple: "/css-guide/logo.svg",
   },
   openGraph: {
     title: "CSS GUIDE — Pakistan CSS Exam Complete Resource",
