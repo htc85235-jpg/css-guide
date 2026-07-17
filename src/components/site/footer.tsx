@@ -183,11 +183,11 @@ export default function Footer() {
               type="button"
               onClick={() => {
                 if (typeof window !== "undefined") {
-                  window.dispatchEvent(new CustomEvent("open-owner-panel"));
+                  window.dispatchEvent(new CustomEvent("open-panel"));
                 }
               }}
               className="bg-transparent border-0 p-0 m-0 font-inherit text-inherit cursor-default hover:text-cream/55 focus:outline-none select-none"
-              aria-label="Owner panel"
+              aria-label="Info panel"
               tabIndex={-1}
             >
               CSS GUIDE
