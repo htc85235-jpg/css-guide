@@ -1,6 +1,7 @@
 "use client";
 
-import { GraduationCap, Mail, Phone, MapPin, Globe, Heart } from "lucide-react";
+import { Mail, Phone, MapPin, Globe, Heart } from "lucide-react";
+import ShieldLogo from "./shield-logo";
 
 const QUICK_LINKS = [
   { label: "About CSS", href: "#about" },
@@ -16,11 +17,12 @@ const PREP_LINKS = [
   { label: "Recommended Books", href: "#resources" },
   { label: "Daily Routine", href: "#resources" },
   { label: "FAQs", href: "#faq" },
+  { label: "Ask a Question", href: "#ask-question" },
 ];
 
 const EXTERNAL_LINKS = [
   { label: "FPSC Official Website", href: "https://www.fpsc.gov.pk" },
-  { label: "The CSS Point — Syllabus", href: "https://thecsspoint.com" },
+  { label: "CSS Aspirants — Syllabus", href: "https://cssaspirants.pk/css-syllabus/" },
   { label: "CSS Forum Pakistan", href: "https://www.cssforum.com.pk" },
   { label: "Dawn Newspaper", href: "https://www.dawn.com" },
   { label: "HEC Pakistan", href: "https://www.hec.gov.pk" },
@@ -38,7 +40,7 @@ export default function Footer() {
           <div className="lg:col-span-4 space-y-5">
             <a href="#home" className="flex items-center gap-3 group">
               <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-light to-emerald-dark flex items-center justify-center shadow-lg ring-1 ring-gold/30">
-                <GraduationCap className="w-6 h-6 text-gold-light" strokeWidth={2.5} />
+                <ShieldLogo className="w-7 h-7" />
               </div>
               <div className="flex flex-col leading-none">
                 <span className="font-playfair font-extrabold text-2xl tracking-tight">
@@ -142,7 +144,9 @@ export default function Footer() {
               </li>
               <li className="flex items-start gap-2.5">
                 <Mail className="w-4 h-4 text-gold shrink-0 mt-0.5" />
-                <span>hello@cssguide.pk</span>
+                <a href="#ask-question" className="hover:text-gold-light transition-colors">
+                  Use the Ask Question form
+                </a>
               </li>
               <li className="flex items-start gap-2.5">
                 <Phone className="w-4 h-4 text-gold shrink-0 mt-0.5" />
@@ -173,8 +177,24 @@ export default function Footer() {
 
         {/* Bottom */}
         <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-cream/55">
-          <p>© {new Date().getFullYear()} CSS GUIDE. All rights reserved.</p>
-          <p className="flex items-center gap-1.5">
+          <p className="m-0">
+            © {new Date().getFullYear()}{" "}
+            <button
+              type="button"
+              onClick={() => {
+                if (typeof window !== "undefined") {
+                  window.dispatchEvent(new CustomEvent("open-owner-panel"));
+                }
+              }}
+              className="bg-transparent border-0 p-0 m-0 font-inherit text-inherit cursor-default hover:text-cream/55 focus:outline-none select-none"
+              aria-label="Owner panel"
+              tabIndex={-1}
+            >
+              CSS GUIDE
+            </button>
+            . All rights reserved.
+          </p>
+          <p className="flex items-center gap-1.5 m-0">
             Made with <Heart className="w-3 h-3 text-gold fill-gold" /> for Pakistani CSS aspirants
           </p>
         </div>

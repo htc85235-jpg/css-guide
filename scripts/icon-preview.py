@@ -1,0 +1,400 @@
+#!/usr/bin/env python3
+"""Generate an HTML preview page showing 6 icon design options for the CSS GUIDE
+website header, rendered as inline SVG in the brand colors (emerald green + gold)."""
+
+HTML = """<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CSS GUIDE — Icon Options</title>
+<style>
+  :root {
+    --emerald: #0e6b3d;
+    --emerald-dark: #073822;
+    --gold: #c9a227;
+    --gold-light: #f1d27a;
+    --cream: #fbf8ef;
+    --ink: #0d1f17;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, var(--cream), #fff);
+    color: var(--ink);
+    padding: 24px 16px 60px;
+    min-height: 100vh;
+  }
+  h1 {
+    font-size: 22px;
+    color: var(--emerald-dark);
+    text-align: center;
+    margin-bottom: 4px;
+  }
+  .subtitle {
+    text-align: center;
+    color: #555;
+    font-size: 13px;
+    margin-bottom: 24px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  @media (min-width: 640px) {
+    .grid { grid-template-columns: 1fr 1fr; }
+  }
+  .card {
+    background: #fff;
+    border: 2px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: all 0.2s;
+  }
+  .card:hover {
+    border-color: var(--gold);
+    box-shadow: 0 6px 20px rgba(201, 162, 39, 0.2);
+    transform: translateY(-2px);
+  }
+  .option-number {
+    display: inline-block;
+    background: var(--emerald);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 999px;
+    margin-bottom: 12px;
+    letter-spacing: 0.5px;
+  }
+  .icon-large {
+    width: 140px;
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--emerald), var(--emerald-dark));
+    border-radius: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 14px rgba(7, 56, 34, 0.25);
+  }
+  .icon-large svg { width: 90px; height: 90px; }
+  .icon-logo {
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, var(--emerald), var(--emerald-dark));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 14px;
+  }
+  .icon-logo svg { width: 28px; height: 28px; }
+  .label {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--emerald-dark);
+    margin-bottom: 6px;
+  }
+  .desc {
+    font-size: 12px;
+    line-height: 1.5;
+    color: #666;
+  }
+  .footer {
+    text-align: center;
+    margin-top: 32px;
+    padding: 20px;
+    background: #fff;
+    border-radius: 12px;
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 13px;
+    color: #555;
+  }
+  .footer strong { color: var(--emerald-dark); }
+</style>
+</head>
+<body>
+
+<h1>CSS GUIDE — Header Icon Options</h1>
+<p class="subtitle">Tell me which number (1–6) you want, and I'll replace the graduation cap with that design.</p>
+
+<div class="grid">
+
+  <!-- ============ OPTION 1: Salute + Crescent ============ -->
+  <div class="card">
+    <span class="option-number">OPTION 1</span>
+    <div class="icon-large">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <!-- Crescent moon + star (top, above fingertips) -->
+        <g transform="translate(50, 18)">
+          <!-- Crescent: large circle with offset cutout -->
+          <path d="M -10,0 a 10,10 0 1,0 10,-10 a 7.5,7.5 0 1,1 -10,10 z" fill="#f1d27a"/>
+          <!-- 5-point star -->
+          <path d="M 11,-3 l 1.8,3.7 4.1,0.6 -3,2.9 0.7,4.1 -3.7,-1.9 -3.7,1.9 0.7,-4.1 -3,-2.9 4.1,-0.6 z" fill="#f1d27a"/>
+        </g>
+        <!-- Saluting hand (palm forward, fingers together, angled) -->
+        <g transform="translate(28, 38) rotate(-15)">
+          <!-- Forearm/sleeve -->
+          <rect x="0" y="32" width="22" height="22" rx="3" fill="#c9a227"/>
+          <!-- Cuff -->
+          <rect x="-2" y="32" width="26" height="4" fill="#f1d27a"/>
+          <!-- Palm -->
+          <path d="M 2,12 Q 2,4 11,4 Q 20,4 20,12 L 22,32 L 0,32 Z" fill="#fbf8ef" stroke="#f1d27a" stroke-width="1"/>
+          <!-- Fingers -->
+          <rect x="4" y="2" width="3.5" height="14" rx="1.5" fill="#fbf8ef" stroke="#f1d27a" stroke-width="0.8"/>
+          <rect x="8.5" y="0" width="3.5" height="16" rx="1.5" fill="#fbf8ef" stroke="#f1d27a" stroke-width="0.8"/>
+          <rect x="13" y="1" width="3.5" height="15" rx="1.5" fill="#fbf8ef" stroke="#f1d27a" stroke-width="0.8"/>
+          <rect x="17" y="3" width="3" height="13" rx="1.5" fill="#fbf8ef" stroke="#f1d27a" stroke-width="0.8"/>
+          <!-- Thumb -->
+          <path d="M 20,12 Q 25,14 25,18 L 24,24 Q 22,26 20,24 Z" fill="#fbf8ef" stroke="#f1d27a" stroke-width="0.8"/>
+        </g>
+      </svg>
+    </div>
+    <div class="icon-logo">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <g transform="translate(50, 18)">
+          <path d="M -10,0 a 10,10 0 1,0 10,-10 a 7.5,7.5 0 1,1 -10,10 z" fill="#f1d27a"/>
+          <path d="M 11,-3 l 1.8,3.7 4.1,0.6 -3,2.9 0.7,4.1 -3.7,-1.9 -3.7,1.9 0.7,-4.1 -3,-2.9 4.1,-0.6 z" fill="#f1d27a"/>
+        </g>
+        <g transform="translate(28, 38) rotate(-15)">
+          <rect x="0" y="32" width="22" height="22" rx="3" fill="#c9a227"/>
+          <rect x="-2" y="32" width="26" height="4" fill="#f1d27a"/>
+          <path d="M 2,12 Q 2,4 11,4 Q 20,4 20,12 L 22,32 L 0,32 Z" fill="#fbf8ef" stroke="#f1d27a" stroke-width="1"/>
+          <rect x="4" y="2" width="3.5" height="14" rx="1.5" fill="#fbf8ef" stroke="#f1d27a" stroke-width="0.8"/>
+          <rect x="8.5" y="0" width="3.5" height="16" rx="1.5" fill="#fbf8ef" stroke="#f1d27a" stroke-width="0.8"/>
+          <rect x="13" y="1" width="3.5" height="15" rx="1.5" fill="#fbf8ef" stroke="#f1d27a" stroke-width="0.8"/>
+          <rect x="17" y="3" width="3" height="13" rx="1.5" fill="#fbf8ef" stroke="#f1d27a" stroke-width="0.8"/>
+          <path d="M 20,12 Q 25,14 25,18 L 24,24 Q 22,26 20,24 Z" fill="#fbf8ef" stroke="#f1d27a" stroke-width="0.8"/>
+        </g>
+      </svg>
+    </div>
+    <div class="label">Salute + Crescent</div>
+    <div class="desc">Right hand in formal salute (palm forward), gold-crescent + star above fingertips. Combines all three themes: salute + Pakistan + service.</div>
+  </div>
+
+  <!-- ============ OPTION 2: Shield of Service ============ -->
+  <div class="card">
+    <span class="option-number">OPTION 2</span>
+    <div class="icon-large">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <!-- Shield -->
+        <path d="M 50,8 L 86,18 L 86,52 Q 86,78 50,92 Q 14,78 14,52 L 14,18 Z"
+              fill="#0e6b3d" stroke="#c9a227" stroke-width="3"/>
+        <!-- Inner shield border -->
+        <path d="M 50,14 L 80,22 L 80,52 Q 80,73 50,85 Q 20,73 20,52 L 20,22 Z"
+              fill="none" stroke="#f1d27a" stroke-width="1" opacity="0.6"/>
+        <!-- Crescent + star in center -->
+        <g transform="translate(50, 48)">
+          <path d="M -13,0 a 13,13 0 1,0 13,-13 a 10,10 0 1,1 -13,13 z" fill="#f1d27a"/>
+          <path d="M 14,-4 l 2.3,4.7 5.2,0.8 -3.8,3.7 0.9,5.2 -4.7,-2.5 -4.7,2.5 0.9,-5.2 -3.8,-3.7 5.2,-0.8 z" fill="#f1d27a"/>
+        </g>
+        <!-- Ribbon banner below -->
+        <path d="M 28,68 L 72,68 L 72,76 L 50,82 L 28,76 Z" fill="#c9a227"/>
+        <path d="M 28,68 L 24,72 L 28,76 Z" fill="#8a6f12"/>
+        <path d="M 72,68 L 76,72 L 72,76 Z" fill="#8a6f12"/>
+      </svg>
+    </div>
+    <div class="icon-logo">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <path d="M 50,8 L 86,18 L 86,52 Q 86,78 50,92 Q 14,78 14,52 L 14,18 Z" fill="#0e6b3d" stroke="#c9a227" stroke-width="3"/>
+        <g transform="translate(50, 48)">
+          <path d="M -13,0 a 13,13 0 1,0 13,-13 a 10,10 0 1,1 -13,13 z" fill="#f1d27a"/>
+          <path d="M 14,-4 l 2.3,4.7 5.2,0.8 -3.8,3.7 0.9,5.2 -4.7,-2.5 -4.7,2.5 0.9,-5.2 -3.8,-3.7 5.2,-0.8 z" fill="#f1d27a"/>
+        </g>
+        <path d="M 28,68 L 72,68 L 72,76 L 50,82 L 28,76 Z" fill="#c9a227"/>
+      </svg>
+    </div>
+    <div class="label">Shield of Service</div>
+    <div class="desc">Emerald shield with gold border, crescent + star at center, gold ribbon below. Symbolizes protection, duty, and Pakistan.</div>
+  </div>
+
+  <!-- ============ OPTION 3: Landmark + Flag ============ -->
+  <div class="card">
+    <span class="option-number">OPTION 3</span>
+    <div class="icon-large">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <!-- Pakistani flag (top right) -->
+        <line x1="70" y1="10" x2="70" y2="32" stroke="#c9a227" stroke-width="2"/>
+        <rect x="70" y="10" width="22" height="14" fill="#0e6b3d"/>
+        <g transform="translate(78, 17)">
+          <path d="M -3.5,0 a 3.5,3.5 0 1,0 3.5,-3.5 a 2.7,2.7 0 1,1 -3.5,3.5 z" fill="#f1d27a"/>
+          <path d="M 4,-1 l 0.6,1.3 1.4,0.2 -1,1 0.25,1.4 -1.3,-0.7 -1.3,0.7 0.25,-1.4 -1,-1 1.4,-0.2 z" fill="#f1d27a"/>
+        </g>
+        <!-- Parliament building silhouette -->
+        <!-- Dome -->
+        <path d="M 40,30 Q 50,18 60,30 L 60,38 L 40,38 Z" fill="#0e6b3d"/>
+        <path d="M 50,18 Q 50,14 50,12" stroke="#c9a227" stroke-width="1.5" fill="none"/>
+        <!-- Roof -->
+        <rect x="20" y="38" width="60" height="4" fill="#0e6b3d"/>
+        <!-- Columns -->
+        <rect x="22" y="42" width="5" height="40" fill="#0e6b3d"/>
+        <rect x="32" y="42" width="5" height="40" fill="#0e6b3d"/>
+        <rect x="42" y="42" width="5" height="40" fill="#0e6b3d"/>
+        <rect x="52" y="42" width="5" height="40" fill="#0e6b3d"/>
+        <rect x="62" y="42" width="5" height="40" fill="#0e6b3d"/>
+        <rect x="72" y="42" width="5" height="40" fill="#0e6b3d"/>
+        <!-- Base/steps -->
+        <rect x="14" y="82" width="72" height="6" fill="#0e6b3d"/>
+        <rect x="10" y="88" width="80" height="4" fill="#c9a227"/>
+      </svg>
+    </div>
+    <div class="icon-logo">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <line x1="70" y1="10" x2="70" y2="32" stroke="#c9a227" stroke-width="2"/>
+        <rect x="70" y="10" width="22" height="14" fill="#0e6b3d"/>
+        <path d="M 40,30 Q 50,18 60,30 L 60,38 L 40,38 Z" fill="#0e6b3d"/>
+        <rect x="20" y="38" width="60" height="4" fill="#0e6b3d"/>
+        <rect x="22" y="42" width="5" height="40" fill="#0e6b3d"/>
+        <rect x="32" y="42" width="5" height="40" fill="#0e6b3d"/>
+        <rect x="42" y="42" width="5" height="40" fill="#0e6b3d"/>
+        <rect x="52" y="42" width="5" height="40" fill="#0e6b3d"/>
+        <rect x="62" y="42" width="5" height="40" fill="#0e6b3d"/>
+        <rect x="72" y="42" width="5" height="40" fill="#0e6b3d"/>
+        <rect x="14" y="82" width="72" height="6" fill="#0e6b3d"/>
+        <rect x="10" y="88" width="80" height="4" fill="#c9a227"/>
+      </svg>
+    </div>
+    <div class="label">Landmark + Flag</div>
+    <div class="desc">Parliament-style building with dome + columns, small Pakistani flag on pole at top-right. Pure public-service symbolism.</div>
+  </div>
+
+  <!-- ============ OPTION 4: Medal of Honor ============ -->
+  <div class="card">
+    <span class="option-number">OPTION 4</span>
+    <div class="icon-large">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <!-- Ribbon (top) -->
+        <path d="M 38,8 L 62,8 L 58,30 L 50,42 L 42,30 Z" fill="#0e6b3d"/>
+        <path d="M 38,8 L 42,30 L 50,42 L 50,8 Z" fill="#073822" opacity="0.5"/>
+        <!-- Ribbon stripes -->
+        <line x1="42" y1="14" x2="58" y2="14" stroke="#f1d27a" stroke-width="1.5"/>
+        <line x1="44" y1="20" x2="56" y2="20" stroke="#f1d27a" stroke-width="1.5"/>
+        <!-- Medal outer ring -->
+        <circle cx="50" cy="62" r="26" fill="#c9a227" stroke="#8a6f12" stroke-width="2"/>
+        <!-- Medal inner circle -->
+        <circle cx="50" cy="62" r="20" fill="#fbf8ef" stroke="#c9a227" stroke-width="1"/>
+        <!-- Crescent + star in center -->
+        <g transform="translate(50, 62)">
+          <path d="M -9,0 a 9,9 0 1,0 9,-9 a 7,7 0 1,1 -9,9 z" fill="#0e6b3d"/>
+          <path d="M 10,-3 l 1.6,3.3 3.6,0.5 -2.6,2.5 0.6,3.6 -3.2,-1.7 -3.2,1.7 0.6,-3.6 -2.6,-2.5 3.6,-0.5 z" fill="#0e6b3d"/>
+        </g>
+      </svg>
+    </div>
+    <div class="icon-logo">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <path d="M 38,8 L 62,8 L 58,30 L 50,42 L 42,30 Z" fill="#0e6b3d"/>
+        <circle cx="50" cy="62" r="26" fill="#c9a227" stroke="#8a6f12" stroke-width="2"/>
+        <circle cx="50" cy="62" r="20" fill="#fbf8ef"/>
+        <g transform="translate(50, 62)">
+          <path d="M -9,0 a 9,9 0 1,0 9,-9 a 7,7 0 1,1 -9,9 z" fill="#0e6b3d"/>
+          <path d="M 10,-3 l 1.6,3.3 3.6,0.5 -2.6,2.5 0.6,3.6 -3.2,-1.7 -3.2,1.7 0.6,-3.6 -2.6,-2.5 3.6,-0.5 z" fill="#0e6b3d"/>
+        </g>
+      </svg>
+    </div>
+    <div class="label">Medal of Honor</div>
+    <div class="desc">Gold medal with green ribbon, embossed crescent + star at center. Inspired by civil awards like Hilal-e-Imtiaz given to CSS officers.</div>
+  </div>
+
+  <!-- ============ OPTION 5: Crescent Handshake ============ -->
+  <div class="card">
+    <span class="option-number">OPTION 5</span>
+    <div class="icon-large">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <!-- Crescent + star arching above -->
+        <g transform="translate(50, 22)">
+          <path d="M -14,0 a 14,14 0 1,0 14,-14 a 10.5,10.5 0 1,1 -14,14 z" fill="#f1d27a"/>
+          <path d="M 15,-4 l 2.5,5 5.5,0.8 -4,3.9 1,5.5 -5,-2.6 -5,2.6 1,-5.5 -4,-3.9 5.5,-0.8 z" fill="#f1d27a"/>
+        </g>
+        <!-- Handshake -->
+        <!-- Left arm (emerald) -->
+        <rect x="8" y="50" width="22" height="32" rx="3" fill="#0e6b3d" transform="rotate(-8, 19, 66)"/>
+        <!-- Left hand -->
+        <ellipse cx="42" cy="56" rx="12" ry="9" fill="#fbf8ef" stroke="#c9a227" stroke-width="1.5" transform="rotate(-8, 42, 56)"/>
+        <!-- Right arm (gold) -->
+        <rect x="70" y="50" width="22" height="32" rx="3" fill="#c9a227" transform="rotate(8, 81, 66)"/>
+        <!-- Right hand -->
+        <ellipse cx="58" cy="56" rx="12" ry="9" fill="#fbf8ef" stroke="#c9a227" stroke-width="1.5" transform="rotate(8, 58, 56)"/>
+        <!-- Clasp detail -->
+        <rect x="46" y="52" width="8" height="8" rx="2" fill="#fbf8ef" stroke="#c9a227" stroke-width="1"/>
+        <!-- Thumbs -->
+        <ellipse cx="48" cy="50" rx="3" ry="5" fill="#fbf8ef" stroke="#c9a227" stroke-width="1" transform="rotate(-30, 48, 50)"/>
+        <ellipse cx="52" cy="50" rx="3" ry="5" fill="#fbf8ef" stroke="#c9a227" stroke-width="1" transform="rotate(30, 52, 50)"/>
+      </svg>
+    </div>
+    <div class="icon-logo">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <g transform="translate(50, 22)">
+          <path d="M -14,0 a 14,14 0 1,0 14,-14 a 10.5,10.5 0 1,1 -14,14 z" fill="#f1d27a"/>
+          <path d="M 15,-4 l 2.5,5 5.5,0.8 -4,3.9 1,5.5 -5,-2.6 -5,2.6 1,-5.5 -4,-3.9 5.5,-0.8 z" fill="#f1d27a"/>
+        </g>
+        <rect x="8" y="50" width="22" height="32" rx="3" fill="#0e6b3d" transform="rotate(-8, 19, 66)"/>
+        <ellipse cx="42" cy="56" rx="12" ry="9" fill="#fbf8ef" stroke="#c9a227" stroke-width="1.5" transform="rotate(-8, 42, 56)"/>
+        <rect x="70" y="50" width="22" height="32" rx="3" fill="#c9a227" transform="rotate(8, 81, 66)"/>
+        <ellipse cx="58" cy="56" rx="12" ry="9" fill="#fbf8ef" stroke="#c9a227" stroke-width="1.5" transform="rotate(8, 58, 56)"/>
+      </svg>
+    </div>
+    <div class="label">Crescent Handshake</div>
+    <div class="desc">Two hands clasped (one emerald sleeve, one gold sleeve) with crescent + star arching above. Symbolizes unity, service, and Pakistan.</div>
+  </div>
+
+  <!-- ============ OPTION 6: Crescent + Star alone ============ -->
+  <div class="card">
+    <span class="option-number">OPTION 6</span>
+    <div class="icon-large">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <!-- Decorative outer ring -->
+        <circle cx="50" cy="50" r="38" fill="none" stroke="#f1d27a" stroke-width="1" opacity="0.4"/>
+        <!-- Bold crescent -->
+        <g transform="translate(50, 50)">
+          <path d="M -18,0 a 18,18 0 1,0 18,-18 a 13.5,13.5 0 1,1 -18,18 z" fill="#f1d27a"/>
+          <!-- 5-point star -->
+          <path d="M 19,-6 l 3.2,6.5 7.1,1 -5.2,5 1.2,7.1 -6.4,-3.4 -6.4,3.4 1.2,-7.1 -5.2,-5 7.1,-1 z" fill="#f1d27a"/>
+        </g>
+      </svg>
+    </div>
+    <div class="icon-logo">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <g transform="translate(50, 50)">
+          <path d="M -18,0 a 18,18 0 1,0 18,-18 a 13.5,13.5 0 1,1 -18,18 z" fill="#f1d27a"/>
+          <path d="M 19,-6 l 3.2,6.5 7.1,1 -5.2,5 1.2,7.1 -6.4,-3.4 -6.4,3.4 1.2,-7.1 -5.2,-5 7.1,-1 z" fill="#f1d27a"/>
+        </g>
+      </svg>
+    </div>
+    <div class="label">Crescent + Star</div>
+    <div class="desc">Just the Pakistani flag's crescent moon + 5-point star as a bold gold emblem. Simple, clean, instantly recognizable as Pakistan.</div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <strong>How to choose:</strong> Just tell me the option number (e.g. "Option 2") and I'll replace the graduation cap icon throughout your website with that design. The small square on each card shows how it will look at actual logo size in the navbar (40×40 px).
+</div>
+
+</body>
+</html>
+"""
+
+OUT = "/home/z/my-project/download/icon-options.html"
+with open(OUT, "w", encoding="utf-8") as f:
+    f.write(HTML)
+
+print(f"Icon preview page written to: {OUT}")
+print(f"File size: {len(HTML):,} bytes")
+print()
+print("6 icon designs included:")
+print("  1. Salute + Crescent (recommended)")
+print("  2. Shield of Service")
+print("  3. Landmark + Flag")
+print("  4. Medal of Honor")
+print("  5. Crescent Handshake")
+print("  6. Crescent + Star alone")

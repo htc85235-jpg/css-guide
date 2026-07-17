@@ -40,6 +40,11 @@ export const metadata: Metadata = {
     "CSS Compulsory Subjects",
   ],
   authors: [{ name: "CSS GUIDE Team" }],
+  icons: {
+    icon: "/cssbesthub/logo.svg",
+    shortcut: "/cssbesthub/logo.svg",
+    apple: "/cssbesthub/logo.svg",
+  },
   openGraph: {
     title: "CSS GUIDE — Pakistan CSS Exam Complete Resource",
     description:

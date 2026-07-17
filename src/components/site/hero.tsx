@@ -3,6 +3,7 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { ArrowRight, BookOpen, Target, Users, Sparkles } from "lucide-react";
+import TopNotice from "./top-notice";
 
 export default function Hero() {
   const ref = useRef<HTMLDivElement>(null);
@@ -20,43 +21,38 @@ export default function Hero() {
       ref={ref}
       className="relative min-h-[100svh] flex items-center overflow-hidden pt-24 pb-16"
     >
-      {/* Background layers */}
+      {/* Background layers — decorative blurs hidden on mobile to prevent
+          any chance of horizontal overflow on small viewports. */}
       <div className="absolute inset-0 bg-gradient-to-br from-cream via-white to-emerald-light/10" />
       <div className="absolute inset-0 pattern-grid opacity-50" />
-      <div className="absolute top-1/3 -left-32 w-[28rem] h-[28rem] bg-emerald/15 rounded-full blur-3xl animate-float-slow" />
-      <div className="absolute bottom-1/4 -right-32 w-[32rem] h-[32rem] bg-gold/15 rounded-full blur-3xl animate-float" />
+      <div className="hidden lg:block absolute top-1/3 -left-32 w-[28rem] h-[28rem] bg-emerald/15 rounded-full blur-3xl animate-float-slow" />
+      <div className="hidden lg:block absolute bottom-1/4 -right-32 w-[32rem] h-[32rem] bg-gold/15 rounded-full blur-3xl animate-float" />
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-12 gap-10 lg:gap-8 items-center w-full">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-12 gap-10 lg:gap-8 items-center w-full min-w-0">
         {/* Left content */}
         <motion.div
           style={{ y: yText, opacity }}
-          className="lg:col-span-6 space-y-7 text-center lg:text-left"
+          className="lg:col-span-6 space-y-8 text-center lg:text-left min-w-0 overflow-hidden"
         >
+          {/* Scrolling notice — FIRST in the hero left column, above the badge.
+              Rendered directly (no motion wrapper) so no parent transform
+              can interfere with the marquee's JS-driven animation. */}
+          <TopNotice />
+
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white shadow-md border border-emerald/15 text-sm font-medium text-emerald-dark"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white shadow-lg border border-emerald/15 text-base sm:text-lg font-semibold text-emerald-dark"
           >
-            <Sparkles className="w-4 h-4 text-gold" />
+            <Sparkles className="w-5 h-5 text-gold" />
             Free CSS Exam Resource Hub
           </motion.div>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 28 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.1 }}
-            className="font-playfair font-black text-4xl sm:text-5xl lg:text-6xl xl:text-7xl leading-[1.05] tracking-tight text-emerald-dark"
-          >
-            Master the <span className="text-gradient-emerald">CSS Exam</span>,
-            <br className="hidden sm:block" />
-            Shape Pakistan&apos;s <span className="text-gradient-gold">Future</span>.
-          </motion.h1>
 
           <motion.p
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.22 }}
+            transition={{ duration: 0.7, delay: 0.18 }}
             className="text-base sm:text-lg lg:text-xl text-ink/70 leading-relaxed max-w-xl mx-auto lg:mx-0"
           >
             From syllabus breakdowns and subject selection to exam schedules,
@@ -67,11 +63,11 @@ export default function Hero() {
           <motion.div
             initial={{ opacity: 0, y: 22 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.34 }}
+            transition={{ duration: 0.7, delay: 0.3 }}
             className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start"
           >
             <a
-              href="#exam-structure"
+              href="#syllabus"
               className="group px-6 py-3.5 rounded-xl bg-gradient-to-r from-emerald to-emerald-dark text-white font-semibold shadow-xl shadow-emerald/30 hover:shadow-emerald/50 hover:-translate-y-0.5 transition-all shine relative overflow-hidden flex items-center justify-center gap-2"
             >
               Explore Syllabus
@@ -90,7 +86,7 @@ export default function Hero() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.46 }}
+            transition={{ duration: 0.7, delay: 0.42 }}
             className="grid grid-cols-3 gap-4 max-w-md mx-auto lg:mx-0 pt-4"
           >
             {[
@@ -111,26 +107,40 @@ export default function Hero() {
           </motion.div>
         </motion.div>
 
-        {/* Right visual: 3D card collage */}
+        {/* Right visual: 3D card collage.
+            HIDDEN on mobile/tablet (< lg) — the floating cards use negative
+            right/left offsets that push past the viewport on small screens,
+            causing horizontal scroll on Android. Shown only on lg+ where there
+            is a true two-column layout to contain them. */}
         <motion.div
           style={{ y: yImage }}
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="lg:col-span-6 relative h-[440px] sm:h-[520px] lg:h-[580px]"
+          className="hidden lg:block lg:col-span-6 relative h-[580px]"
         >
-          {/* Main hero image */}
+          {/* Main hero image — Pakistan Monument Islamabad, an iconic national
+              landmark symbolizing service to the nation. Replaces the previous
+              generic "students studying" Unsplash photo for stronger thematic
+              fit with CSS / public service. */}
           <div className="absolute inset-0 [transform-style:preserve-3d] [perspective:1200px]">
             <div className="absolute inset-0 tilt-card rounded-3xl overflow-hidden shadow-2xl shadow-emerald-dark/40 ring-1 ring-white/40">
               <img
-                src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1200&q=80"
-                alt="CSS aspirants studying together"
+                src="https://images.unsplash.com/photo-1567433291488-3a4b2a3c5e0a?auto=format&fit=crop&w=1200&q=80"
+                alt="Pakistan Monument Islamabad — national landmark"
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  // Fallback to a Pakistan-themed photo if first one fails
+                  const img = e.currentTarget;
+                  if (img.src.indexOf("1567433291488") !== -1) {
+                    img.src = "https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=1200&q=80";
+                  }
+                }}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-emerald-dark/80 via-emerald-dark/10 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-emerald-dark/85 via-emerald-dark/15 to-transparent" />
               <div className="absolute bottom-0 inset-x-0 p-6 lg:p-8 text-cream">
                 <p className="text-xs uppercase tracking-[0.25em] text-gold-light mb-2">
-                  The CSS Journey
+                  Pakistan • Civil Service
                 </p>
                 <h3 className="font-playfair font-bold text-xl lg:text-2xl leading-tight">
                   &ldquo;The pen that writes the destiny of a nation.&rdquo;

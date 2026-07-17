@@ -11,7 +11,7 @@
 
 - **Interactive Hero Section** — 3D tilt cards, floating animations, shine sweep effects, glass morphism
 - **Comprehensive Exam Info** — 12 CSS occupational groups listed by merit priority (PAS → FSP → PSP → Customs → ...)
-- **Subject-wise Syllabus** — Direct link to [The CSS Point](https://thecsspoint.com) for official FPSC syllabus
+- **Subject-wise Syllabus** — Direct link to [CSS Aspirants](https://cssaspirants.pk/css-syllabus/) for official FPSC syllabus
 - **Compulsory & Optional Subjects** — 6 compulsory + 50+ optional subjects with marks, scoring trends, syllabus length
 - **Exam Schedule** — Complete CSS calendar with application deadlines, written exam, viva voce
 - **Motivational Quotes** — Curated quotes from Quaid-e-Azam, Churchill, Eleanor Roosevelt, Edison
@@ -122,7 +122,7 @@ This site is optimized for deployment on:
 |---|---------|--------|-------------|
 | 1 | Hero | `#home` | Animated hero with stats and CTA |
 | 2 | About | `#about` | What is CSS, eligibility, 12 occupational groups |
-| 3 | Syllabus | `#syllabus` | Link to official FPSC syllabus (thecsspoint.com) |
+| 3 | Syllabus | `#syllabus` | Link to official FPSC syllabus (cssaspirants.pk) |
 | 4 | Exam Structure | `#exam-structure` | Written + Psychological + Viva Voce format |
 | 5 | Compulsory Subjects | `#compulsory` | 6 compulsory papers (600 marks) |
 | 6 | Optional Subjects | `#optional` | 50+ optional subjects (600 marks) |

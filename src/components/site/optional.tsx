@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import SectionHeading from "./section-heading";
-import { Layers, ChevronRight } from "lucide-react";
+import { Layers, ChevronRight, ChevronDown } from "lucide-react";
 
 interface Subject {
   name: string;
@@ -96,7 +96,16 @@ const SCORING_COLORS = {
 };
 
 export default function Optional() {
-  const [active, setActive] = useState(0);
+  // Each group can be expanded independently — all start collapsed.
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
+    A: false,
+    B: false,
+    C: false,
+  });
+
+  function toggleGroup(id: string) {
+    setOpenGroups((prev) => ({ ...prev, [id]: !prev[id] }));
+  }
 
   return (
     <section id="optional" className="section-pad relative bg-white overflow-hidden">
@@ -138,102 +147,138 @@ export default function Optional() {
           </div>
         </motion.div>
 
-        {/* Tabs */}
-        <div className="mt-10 flex flex-wrap justify-center gap-2">
-          {GROUPS.map((g, i) => (
-            <button
-              key={g.id}
-              onClick={() => setActive(i)}
-              className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 border ${
-                active === i
-                  ? "bg-gradient-to-r from-emerald to-emerald-dark text-white border-transparent shadow-lg shadow-emerald/30"
-                  : "bg-white text-emerald-dark border-emerald/20 hover:border-emerald/40"
-              }`}
-            >
-              <Layers className="w-4 h-4" />
-              Group {g.id}
-            </button>
-          ))}
+        {/* Collapsible group accordions — all start collapsed */}
+        <div className="mt-10 space-y-4">
+          {GROUPS.map((g) => {
+            const isOpen = !!openGroups[g.id];
+            return (
+              <div
+                key={g.id}
+                className={`rounded-2xl border overflow-hidden transition-colors ${
+                  isOpen
+                    ? "bg-cream/40 border-emerald/30 shadow-md"
+                    : "bg-cream/20 border-emerald/10 hover:border-emerald/25"
+                }`}
+              >
+                {/* Header (click to toggle) */}
+                <button
+                  onClick={() => toggleGroup(g.id)}
+                  aria-expanded={isOpen}
+                  aria-controls={`optional-group-${g.id}`}
+                  className="w-full flex items-center justify-between gap-4 p-5 sm:p-6 text-left group"
+                >
+                  <div className="flex items-start gap-4 min-w-0">
+                    <div
+                      className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-all ${
+                        isOpen
+                          ? "bg-gradient-to-br from-emerald to-emerald-dark text-gold-light"
+                          : "bg-emerald/10 text-emerald group-hover:bg-emerald/20"
+                      }`}
+                    >
+                      <Layers className="w-5 h-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="font-playfair font-bold text-base sm:text-lg text-emerald-dark leading-snug">
+                        {g.title}
+                      </h3>
+                      <p className="text-xs sm:text-sm text-ink/65 mt-1 leading-relaxed">
+                        {g.desc}
+                      </p>
+                      <p className="text-[11px] text-emerald/80 font-semibold mt-1.5">
+                        {g.subjects.length} subjects • Click to {isOpen ? "hide" : "view"} subjects
+                      </p>
+                    </div>
+                  </div>
+                  <div
+                    className={`shrink-0 w-9 h-9 rounded-full flex items-center justify-center transition-all ${
+                      isOpen
+                        ? "bg-emerald text-gold-light rotate-180"
+                        : "bg-emerald/10 text-emerald group-hover:bg-emerald/20"
+                    }`}
+                  >
+                    <ChevronDown className="w-5 h-5" />
+                  </div>
+                </button>
+
+                {/* Collapsible subjects list */}
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      id={`optional-group-${g.id}`}
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.4, ease: "easeInOut" }}
+                      className="overflow-hidden"
+                    >
+                      <div className="px-5 sm:px-6 pb-6">
+                        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                          {g.subjects.map((s, i) => (
+                            <motion.div
+                              key={s.name + i}
+                              initial={{ opacity: 0, scale: 0.96 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              transition={{ duration: 0.3, delay: Math.min(i * 0.03, 0.4) }}
+                              className="group bg-white rounded-xl p-4 border border-emerald/10 hover:border-emerald/30 hover:shadow-md transition-all cursor-default"
+                            >
+                              <div className="flex items-start justify-between gap-2 mb-2">
+                                <h4 className="font-semibold text-sm text-emerald-dark leading-snug">
+                                  {s.name}
+                                </h4>
+                                <span className="text-xs font-bold text-gold-dark shrink-0">
+                                  {s.marks}
+                                </span>
+                              </div>
+                              <div className="flex flex-wrap items-center gap-1.5">
+                                <span
+                                  className={`text-[10px] px-1.5 py-0.5 rounded-md border font-semibold ${SCORING_COLORS[s.scoring]}`}
+                                >
+                                  {s.scoring}
+                                </span>
+                                <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-emerald/8 text-emerald font-semibold">
+                                  {s.syllabusLength}
+                                </span>
+                              </div>
+                            </motion.div>
+                          ))}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            );
+          })}
         </div>
 
-        {/* Group panel */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={active}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.35 }}
-            className="mt-8"
-          >
-            <div className="rounded-3xl bg-cream/40 border border-emerald/10 p-6 sm:p-8">
-              <h3 className="font-playfair font-bold text-xl sm:text-2xl text-emerald-dark mb-1">
-                {GROUPS[active].title}
-              </h3>
-              <p className="text-sm text-ink/65 mb-6">{GROUPS[active].desc}</p>
-
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {GROUPS[active].subjects.map((s, i) => (
-                  <motion.div
-                    key={s.name + i}
-                    initial={{ opacity: 0, scale: 0.96 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.3, delay: Math.min(i * 0.03, 0.4) }}
-                    className="group bg-white rounded-xl p-4 border border-emerald/10 hover:border-emerald/30 hover:shadow-md transition-all cursor-default"
-                  >
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <h4 className="font-semibold text-sm text-emerald-dark leading-snug">
-                        {s.name}
-                      </h4>
-                      <span className="text-xs font-bold text-gold-dark shrink-0">
-                        {s.marks}
-                      </span>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      <span
-                        className={`text-[10px] px-1.5 py-0.5 rounded-md border font-semibold ${SCORING_COLORS[s.scoring]}`}
-                      >
-                        {s.scoring}
-                      </span>
-                      <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-emerald/8 text-emerald font-semibold">
-                        {s.syllabusLength}
-                      </span>
-                    </div>
-                  </motion.div>
-                ))}
+        {/* Subject selection tips (always visible) */}
+        <div className="mt-8 grid sm:grid-cols-3 gap-4">
+          {[
+            {
+              t: "Match Your Background",
+              d: "Pick subjects aligned with your academic degree. A 14-year foundation beats learning from scratch.",
+            },
+            {
+              t: "Check Past Paper Trends",
+              d: "Review last 5 years of past papers to gauge question patterns, scoring trends, and difficulty level.",
+            },
+            {
+              t: "Avoid Overlapping Syllabi",
+              d: "Choose complementary subjects. IR + Current Affairs + US History share themes and reduce effort.",
+            },
+          ].map((tip, i) => (
+            <div
+              key={i}
+              className="bg-white rounded-xl p-4 border border-emerald/10 flex items-start gap-3"
+            >
+              <ChevronRight className="w-5 h-5 text-gold shrink-0 mt-0.5" />
+              <div>
+                <h4 className="font-semibold text-sm text-emerald-dark mb-1">{tip.t}</h4>
+                <p className="text-xs text-ink/65 leading-relaxed">{tip.d}</p>
               </div>
             </div>
-
-            {/* Subject selection tips */}
-            <div className="mt-6 grid sm:grid-cols-3 gap-4">
-              {[
-                {
-                  t: "Match Your Background",
-                  d: "Pick subjects aligned with your academic degree. A 14-year foundation beats learning from scratch.",
-                },
-                {
-                  t: "Check Past Paper Trends",
-                  d: "Review last 5 years of past papers to gauge question patterns, scoring trends, and difficulty level.",
-                },
-                {
-                  t: "Avoid Overlapping Syllabi",
-                  d: "Choose complementary subjects. IR + Current Affairs + US History share themes and reduce effort.",
-                },
-              ].map((tip, i) => (
-                <div
-                  key={i}
-                  className="bg-white rounded-xl p-4 border border-emerald/10 flex items-start gap-3"
-                >
-                  <ChevronRight className="w-5 h-5 text-gold shrink-0 mt-0.5" />
-                  <div>
-                    <h4 className="font-semibold text-sm text-emerald-dark mb-1">{tip.t}</h4>
-                    <p className="text-xs text-ink/65 leading-relaxed">{tip.d}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        </AnimatePresence>
+          ))}
+        </div>
       </div>
     </section>
   );

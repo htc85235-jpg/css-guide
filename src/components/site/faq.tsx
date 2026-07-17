@@ -78,7 +78,6 @@ export default function FAQ() {
           <Accordion
             type="single"
             collapsible
-            defaultValue="faq-0"
             className="space-y-3"
           >
             {FAQS.map((faq, i) => (

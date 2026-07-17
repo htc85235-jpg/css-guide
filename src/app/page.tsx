@@ -11,8 +11,10 @@ import Schedule from "@/components/site/schedule";
 import Quotes from "@/components/site/quotes";
 import Resources from "@/components/site/resources";
 import FAQ from "@/components/site/faq";
+import AskQuestion from "@/components/site/ask-question";
 import CTA from "@/components/site/cta";
 import Footer from "@/components/site/footer";
+import OwnerPanel from "@/components/site/owner-panel";
 
 export default function Home() {
   return (
@@ -29,9 +31,11 @@ export default function Home() {
         <Quotes />
         <Resources />
         <FAQ />
+        <AskQuestion />
         <CTA />
       </main>
       <Footer />
+      <OwnerPanel />
     </div>
   );
 }

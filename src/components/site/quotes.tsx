@@ -16,30 +16,6 @@ const QUOTES = [
     img: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80",
     role: "Former First Lady",
   },
-  {
-    text: "I have not failed. I&apos;ve just found 10,000 ways that won&apos;t work.",
-    author: "Thomas Edison",
-    img: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&w=800&q=80",
-    role: "Inventor",
-  },
-  {
-    text: "Criminals do not die by the hands of the law. They die by the hands of educated, disciplined and dedicated young people.",
-    author: "Quaid-e-Azam M.A. Jinnah",
-    img: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=800&q=80",
-    role: "Founder of Pakistan",
-  },
-  {
-    text: "Khudi ko kar buland itna ke har taqdeer se pehle, Khuda bande se khud pooche bata teri raza kya hai.",
-    author: "Allama Iqbal",
-    img: "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=800&q=80",
-    role: "Poet of the East",
-  },
-  {
-    text: "Nations are born in the hearts of poets; they prosper and die in the hands of politicians.",
-    author: "Allama Iqbal",
-    img: "https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&w=800&q=80",
-    role: "Poet of the East",
-  },
 ];
 
 export default function Quotes() {
@@ -83,14 +59,14 @@ export default function Quotes() {
         </div>
 
         {/* Quote cards */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid sm:grid-cols-2 gap-6 max-w-3xl mx-auto">
           {QUOTES.map((q, i) => (
             <motion.article
               key={i}
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.6, delay: (i % 3) * 0.1 }}
+              transition={{ duration: 0.6, delay: i * 0.1 }}
               className="group relative rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all"
             >
               {/* Image */}

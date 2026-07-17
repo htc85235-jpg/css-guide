@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, GraduationCap } from "lucide-react";
+import { Menu, X } from "lucide-react";
+import ShieldLogo from "./shield-logo";
 
 const NAV_LINKS = [
   { label: "About", href: "#about" },
@@ -13,6 +14,7 @@ const NAV_LINKS = [
   { label: "Schedule", href: "#schedule" },
   { label: "Resources", href: "#resources" },
   { label: "FAQ", href: "#faq" },
+  { label: "Ask Question", href: "#ask-question" },
 ];
 
 export default function Navbar() {
@@ -41,7 +43,7 @@ export default function Navbar() {
             <div className="relative">
               <div className="absolute inset-0 bg-gold/40 blur-md rounded-lg group-hover:bg-gold/60 transition-all" />
               <div className="relative w-10 h-10 rounded-lg bg-gradient-to-br from-emerald to-emerald-dark flex items-center justify-center shadow-lg">
-                <GraduationCap className="w-5 h-5 text-gold-light" strokeWidth={2.5} />
+                <ShieldLogo className="w-7 h-7" />
               </div>
             </div>
             <div className="flex flex-col leading-none">

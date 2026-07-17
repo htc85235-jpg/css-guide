@@ -1,7 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, GraduationCap, BookOpen, Users } from "lucide-react";
+import { ArrowRight, BookOpen, Users } from "lucide-react";
+import ShieldLogo from "./shield-logo";
 
 export default function CTA() {
   return (
@@ -41,7 +42,7 @@ export default function CTA() {
               transition={{ duration: 0.5 }}
               className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gold/15 text-gold-light border border-gold/30 text-xs font-semibold tracking-[0.18em] uppercase"
             >
-              <GraduationCap className="w-3.5 h-3.5" />
+              <ShieldLogo className="w-3.5 h-3.5" />
               Your Journey Starts Today
             </motion.span>
 
