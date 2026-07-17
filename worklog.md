@@ -581,3 +581,26 @@ Stage Summary:
 - The "client-side exception" is fully resolved. The site now loads correctly.
 - All 4 user-requested changes (vault checkbox removed, Dumbi/Dumbo split, cssaspirants URL, hero #syllabus link) are confirmed live and the JS bundle is valid.
 - Users should now hard-refresh (Ctrl+Shift+R / Cmd+Shift+R) or open in incognito to bypass any cached 404-HTML responses from the previous broken deploy.
+
+---
+Task ID: vault-90s-sustained-scroll
+Agent: main (Super Z)
+Task: User reported: "Increase vault time to 1.5 minutes. Also, even a short scroll closes the vault. It's not good. Only long scroll up should close the vault."
+
+Work Log:
+- Changed `BOX_VISIBLE_SEC` constant from 60 → 90 (1.5 minutes as requested).
+- Replaced the single-event scroll-up detector (which triggered close on any 4px upward motion) with a sustained-scroll detector:
+    * New ref `scrollUpStartY`: anchors the scroll position at the moment upward motion begins.
+    * New ref `scrollGraceUntil`: 800ms grace window after entering secret stage, so the modal's opening scroll-snap doesn't count as a user scroll.
+    * Only triggers `closeAll()` after cumulative upward scroll ≥ 220px since the last downward motion.
+    * Any downward motion resets the anchor — meaning if the user scrolls up a bit then back down, the counter restarts. This requires a deliberate, sustained upward swipe to close.
+- Updated helper text in the modal footer: "scroll up" → "scroll up sharply" to set correct user expectation.
+- Rebuilt (`GITHUB_ACTIONS=true npm run build:static`), deployed via `node scripts/deploy-gh-pages.js`.
+- Verified live: new chunk `93ece0e4450a5702.js` (HTTP 200, valid JS), contains "scroll up sharper", "Dumbi Box", 90, 220, 800 constants.
+- All 9 chunks pass Node `new Function()` syntax check.
+- Committed and pushed to main.
+
+Stage Summary:
+- Vault now stays open for 90 seconds (was 60s).
+- Vault no longer closes on tiny scrolls. User must scroll up by at least ~220px in a sustained motion to dismiss it. Touchpad jitter, single mouse-wheel notch, and mobile pull-to-refresh gestures are absorbed without closing.
+- ESC key, click-outside, and timer expiry still close the vault as before.
